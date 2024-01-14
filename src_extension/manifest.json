@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json.schemastore.org/chrome-manifest",
+	"name": "Github Aid",
+	"version": "0.0.1",
+	"manifest_version": 3,
+	"description": "An extension to display the size of Github repositories and files",
+	"icons": {
+		"16": "icon/16x16.png",
+		"32": "icon/32x32.png",
+		"48": "icon/48x48.png",
+		"128": "icon/128x128.png"
+	},
+	"action": {}
+}

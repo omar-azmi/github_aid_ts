@@ -1,0 +1,36 @@
+{
+	"name": "github_aid_ts",
+	"version": "0.0.1",
+	"description": "an extension to display the size of github repositories and files.",
+	"author": "Omar Azmi",
+	"license": "Lulz plz don't steal yet",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/omar-azmi/github_aid_ts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/omar-azmi/github_aid_ts/issues"
+	},
+	"compilerOptions": {
+		"lib": [
+			"esnext",
+			"dom",
+			"deno.ns"
+		],
+		"strict": true,
+		"allowJs": true
+	},
+	"devDependencies": {
+		"typescript": "^5.0.0",
+		"esbuild": "^0.17.19"
+	},
+	"node_packageManager": "npm",
+	"tasks": {
+		"build-dist": "deno run -A ./build_dist.ts",
+		"build-docs": "deno run -A ./build_docs.ts",
+		"build-npm": "deno run -A ./build_npm.ts",
+		"build-npm-dist": "cd \"./npm/\" && npm run build-dist",
+		"clean": "deno run -A ./clean.ts",
+		"test": "deno test -A ./src/mod.ts && deno test -A ./test/"
+	}
+}
