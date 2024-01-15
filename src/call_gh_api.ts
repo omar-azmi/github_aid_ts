@@ -6,7 +6,7 @@ export interface RepoPath {
 	/** i can't handle the different branches besides the "HEAD" when using the REST API.
 	 * i will probably want to use the the GraphQL API for that.
 	*/
-	tree: string
+	branch: string
 	subdir?: string
 }
 
@@ -26,14 +26,14 @@ export const getCurrentRepoPath = (): RepoPath => {
 	return {
 		owner: path.shift()!,
 		repo: path.shift()!,
-		tree: path[0] === "tree" ? (path.shift() && false) || path.shift()! : "HEAD",
+		branch: path[0] === "tree" ? (path.shift() && false) || path.shift()! : "HEAD",
 		subdir: path.join("/")
 	}
 }
 
 export const getRepoSizeInfo = async (repo_path: RepoPath): Promise<SizeInfo> => {
 	const
-		{ repo, tree, owner, subdir } = repo_path,
+		{ repo, branch, owner, subdir } = repo_path,
 		repo_info = await (await fetch(`https://api.github.com/repos/${owner}/${repo}`)).json(),
 		repo_size_info: SizeInfo = {
 			name: repo_info.name,
