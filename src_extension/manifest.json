@@ -1,9 +1,19 @@
 {
 	"$schema": "https://json.schemastore.org/chrome-manifest",
+	"manifest_version": 3,
 	"name": "Github Aid",
 	"version": "0.0.1",
-	"manifest_version": 3,
 	"description": "An extension to display the size of Github repositories and files",
+	"content_scripts": [
+		{
+			"matches": [
+				"*://github.com/*"
+			],
+			"js": [
+				"./js/mod.js"
+			]
+		}
+	],
 	"icons": {
 		"16": "icon/eldercat_16.png",
 		"32": "icon/eldercat_32.png",
@@ -12,5 +22,23 @@
 		"128": "icon/eldercat_128.png",
 		"256": "icon/eldercat_256.png"
 	},
-	"action": {}
+	"options_ui": {
+		"page": "./option.html",
+		"open_in_tab": false
+	},
+	"permissions": [
+		"storage"
+	],
+	"action": {
+		"default_icon": {
+			"16": "icon/eldercat_16.png",
+			"32": "icon/eldercat_32.png",
+			"48": "icon/eldercat_48.png",
+			"64": "icon/eldercat_64.png",
+			"128": "icon/eldercat_128.png",
+			"256": "icon/eldercat_256.png"
+		},
+		"default_popup": "./popup.html",
+		"default_title": "Github Aid"
+	}
 }

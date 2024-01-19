@@ -7,6 +7,9 @@
    id="svg1"
    sodipodi:docname="eldercat.svg"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   inkscape:export-filename="eldercat_16.png"
+   inkscape:export-xdpi="6"
+   inkscape:export-ydpi="6"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -41,15 +44,16 @@
      inkscape:pagecheckerboard="1"
      inkscape:deskcolor="#505050"
      inkscape:zoom="2.0911513"
-     inkscape:cx="64.55774"
+     inkscape:cx="64.796842"
      inkscape:cy="116.92124"
      inkscape:window-width="1920"
      inkscape:window-height="1001"
      inkscape:window-x="-9"
      inkscape:window-y="-9"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer4"
-     showguides="true" />
+     inkscape:current-layer="layer2"
+     showguides="true"
+     inkscape:export-bgcolor="#ffffffff" />
   <g
      inkscape:groupmode="layer"
      id="layer4"
@@ -73,13 +77,13 @@
        inkscape:original-d="M 6.0036912,4.7538806 8,4 9.9979284,4.7328596"
        transform="scale(16)" />
     <circle
-       style="fill:#ffff00;fill-rule:evenodd;stroke-width:16"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:16;fill-opacity:1"
        id="path4"
        cx="95.999184"
        cy="75.999184"
        r="19.999184" />
     <circle
-       style="fill:#ffff00;fill-rule:evenodd;stroke-width:16"
+       style="fill:#000000;fill-rule:evenodd;stroke-width:16;fill-opacity:1"
        id="path4-0"
        cx="159.99918"
        cy="75.999184"

@@ -8,6 +8,7 @@ export interface RepoPath {
 	*/
 	branch: string
 	subdir?: string
+	subpath: string
 }
 
 export interface SizeInfo {
@@ -22,10 +23,11 @@ export interface SizeInfo {
 export const getCurrentRepoPath = (): RepoPath => {
 	const path = window.location.pathname.split("/")
 	if (path[0] === "") { path.shift() }
-	console.assert(path.length >= 2, "failed to parse the repository's location from the current url")
+	if (path.length >= 2) { console.warn("failed to parse the repository's location from the current url") }
 	return {
 		owner: path.shift()!,
 		repo: path.shift()!,
+		subpath: path.join("/"),
 		branch: path[0] === "tree" ? (path.shift() && false) || path.shift()! : "HEAD",
 		subdir: path.join("/")
 	}

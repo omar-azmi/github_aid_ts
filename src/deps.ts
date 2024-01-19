@@ -1,5 +1,10 @@
 export { array_isArray } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
-export { memorize, debounceAndShare } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
+export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
+
+import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
+
+const math_random = Math.random
 
 const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
 
@@ -11,4 +16,39 @@ export const humanReadableBytesize = (bytesize: number): string => {
 		unit = units[i],
 		bytesize_in_unit = (bytesize / (1024 ** i)).toFixed(2)
 	return bytesize_in_unit + " " + unit
+}
+
+export const shuffleArray = <T>(arr: Array<T>): Array<T> => {
+	const
+		len = arr.length,
+		rand_int = () => (math_random() * len) | 0,
+		swap = (i1: number, i2: number) => {
+			const temp = arr[i1]
+			arr[i1] = arr[i2]
+			arr[i2] = temp
+		}
+	for (let i = 0; i < len; i++) swap(i, rand_int())
+	return arr
+}
+
+export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, number | undefined> {
+	let i = arr.length // this is only temporary. `i` immediately becomes `0` when the while loop begins
+	while (!array_isEmpty(arr)) {
+		if (i >= arr.length) {
+			i = 0
+			shuffleArray(arr)
+		}
+		i = max(i + ((yield arr[i]) ?? 1), 0)
+	}
+}
+
+/** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
+const root_dir = "../"
+export const config = {
+	dir: {
+		root: new URL("./", root_dir),
+		images: new URL("./images/", root_dir),
+		icon: new URL("./icon/", root_dir),
+		js: new URL("./js/", root_dir),
+	},
 }

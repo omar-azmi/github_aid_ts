@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Github Aid options menu</title>
+	<style>
+		html,
+		body {
+			width: 300px;
+			height: 400px;
+		}
+
+		body {
+			margin: 0;
+			padding: 1rem;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		h2 {
+			/* margin: 0 0 10px 0; */
+		}
+
+		input[type="text"] {
+			width: 100%;
+			padding: 0.5rem 0rem;
+			margin: 0.5rem 0rem;
+		}
+
+		button {
+			position: relative;
+			left: calc(50% - 8rem / 2);
+			background-color: #7a7a7a;
+			color: white;
+			border: none;
+			padding: 0.5rem 0rem;
+			text-align: center;
+			display: block;
+			width: 8rem;
+			cursor: pointer;
+			border-radius: 0.5rem;
+		}
+
+		div {
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			margin-top: 1rem;
+		}
+
+		.footer {
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Github Aid options</h2>
+	<div>
+		<label for="token">Enter Github Access Token</label>
+		<input type="text" id="token" name="token">
+		<button type="submit">SAVE</button>
+	</div>
+	<div>
+		<p>Select Github API mode to use</p>
+		<input type="radio" id="use_rest_api" name="api_mode" value="rest">
+		<label for="use_rest_api">REST (doesn't need access token)</label><br>
+		<input type="radio" id="use_graphql_api" name="api_mode" value="graphql">
+		<label for="use_graphql_api">GraphQL (requires access token)</label><br>
+	</div>
+	<div class="footer">
+		<p>
+			<a>star on github</a> ||
+			<a>commit seppuku</a>
+		</p>
+		<p><a>guide on how to get a personal access token</a></p>
+	</div>
+</body>
+
+</html>

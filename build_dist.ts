@@ -8,7 +8,7 @@ import { doubleCompileFiles } from "./build_tools.ts"
 */
 const
 	compile_file = Deno.args[0] ?? "./src/mod.ts",
-	out_dir = "./dist/"
+	out_dir = "./src_extension/js/"
 
 const output_files = await doubleCompileFiles(compile_file, out_dir,
 	{platform: "browser"},
