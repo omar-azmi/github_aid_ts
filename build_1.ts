@@ -1,0 +1,43 @@
+/** this build process simply copies all files under "./src/" to "./dist/${extension_name}/",
+ * while excluding all typescript ".ts" files.
+*/
+
+import { ensureDir, ensureFile, getDenoJson, pathJoin, relativePath, walkDir } from "./build_tools.ts"
+
+const
+	log_only = Deno.args[0] === "--log-only" ? true : false,
+	deno_json = await getDenoJson()
+
+// define the source and destination directories
+const
+	src_dir = "./src/",
+	dst_dir = `./dist/${deno_json.name ?? ""}-v${deno_json.version ?? "0.0.0"}/`
+
+const buildManifestJson = (base_manifest_obj: { [key: string]: any }) => {
+	const
+		{ version, repository, description } = deno_json,
+		homepage_url = (repository.url as string).replace(/^git\+/, "").replace(/\.git$/, "")
+	Object.assign(base_manifest_obj, { version, description, homepage_url })
+	delete base_manifest_obj["$schema"]
+	return base_manifest_obj
+}
+
+if (!log_only) { await ensureDir(dst_dir) }
+
+// iterate over the files in the source directory recursively
+for await (const { path } of walkDir(src_dir, { includeDirs: false })) {
+	// ignore typescript files
+	if (path.endsWith(".ts")) { continue }
+	const rel_path = relativePath(src_dir, path)
+	const dst_path = pathJoin(dst_dir, rel_path)
+	console.log(`copying ${path} to ${dst_path}`)
+	if (!log_only) {
+		await ensureFile(dst_path)
+		if (path.endsWith("manifest.json")) {
+			const manifest_obj = buildManifestJson(JSON.parse(await Deno.readTextFile(path)))
+			await Deno.writeTextFile(dst_path, JSON.stringify(manifest_obj))
+		} else {
+			await Deno.copyFile(path, dst_path)
+		}
+	}
+}

@@ -4,6 +4,17 @@ export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v
 import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
+// @deno-types="npm:web-ext-types"
+declare const chrome: typeof browser
+export const getBrowser = () => {
+	const possible_browser = typeof browser !== "undefined" ?
+		browser :
+		typeof chrome !== "undefined" ?
+			chrome :
+			undefined
+	return possible_browser?.runtime?.id ? possible_browser : undefined
+}
+
 const math_random = Math.random
 
 const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
@@ -43,7 +54,7 @@ export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, nu
 }
 
 /** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
-const root_dir = "../"
+const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
 export const config = {
 	dir: {
 		root: new URL("./", root_dir),

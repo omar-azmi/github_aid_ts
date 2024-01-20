@@ -9,6 +9,14 @@ import {
 	build as esbuild, stop as esstop, transform as estransform
 } from "https://deno.land/x/esbuild@v0.17.19/mod.js"
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
+export { ensureDir, ensureFile, walk as walkDir } from "https://deno.land/std@0.204.0/fs/mod.ts"
+export { join as pathJoin, relative as relativePath } from "https://deno.land/std@0.204.0/path/mod.ts"
+export { stop as esstop } from "https://deno.land/x/esbuild@v0.17.19/mod.js"
+export type {
+	BuildOptions as ESBuildOptions,
+	OutputFile as ESOutputFile,
+	TransformOptions as ESTransformOptions
+} from "https://deno.land/x/esbuild@v0.17.19/mod.js"
 
 
 export const mainEntrypoint: string = "./src/mod.ts"
@@ -128,6 +136,7 @@ export const doubleCompileFiles = async (
 	out_dir: string,
 	overrid_bundle_options: ESBuildOptions = {},
 	overrid_minify_options: ESTransformOptions = {},
+	stop: boolean = true
 ) => {
 	let t0 = performance.now(), t1: number
 
@@ -155,7 +164,7 @@ export const doubleCompileFiles = async (
 					...overrid_minify_options
 				})).code,
 				js_text_uint8 = (new TextEncoder()).encode(js_text)
-			console.log("bundled file", file_number, "\n\t" ,"output path:", path, "\n\t", "binary size:", js_text_uint8.byteLength / 1024, "kb")
+			console.log("bundled file", file_number, "\n\t", "output path:", path, "\n\t", "binary size:", js_text_uint8.byteLength / 1024, "kb")
 			return {
 				path,
 				text: js_text,
@@ -164,7 +173,7 @@ export const doubleCompileFiles = async (
 		}
 	))
 
-	esstop()
+	if (stop) { esstop() }
 	t1 = performance.now()
 	console.log("bundling time:", t1 - t0, "ms")
 	return bundled_files

@@ -1,0 +1,58 @@
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Seppuku Aid</title>
+	<script src="./seppuku.js" type="module"></script>
+	<style>
+		#seppuku-div {
+			--width: 75vmin;
+			--rotation: 15deg;
+		}
+
+		@media screen and (max-width: 640px) {
+			#seppuku-div {
+				--width: calc(100vmin - 5%);
+			}
+		}
+
+		#seppuku-div>img {
+			width: var(--width);
+		}
+
+		@keyframes seppuku-text-animation {
+			50% {
+				transform: rotate(var(--rotation)) scale(1.05);
+			}
+
+			0%,
+			100% {
+				transform: rotate(var(--rotation)) scale(0.95);
+			}
+		}
+
+		#seppuku-div>span {
+			position: absolute;
+			left: calc(var(--width) * (1.0 - 0.5 * cos(var(--rotation))));
+			top: calc(var(--width) / 4 * sin(var(--rotation)));
+			width: calc(var(--width) / 2);
+			animation: seppuku-text-animation 2s cubic-bezier(0.5, 0, 1, 0.5) infinite;
+			font-family: monospace;
+			font-size: large;
+			font-weight: bold;
+			color: yellow;
+			pointer-events: none;
+			padding: 1rem 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="seppuku-div">
+		<img alt="how to seppuku" />
+		<span>insert weabooness here</span>
+	</div>
+</body>
+
+</html>

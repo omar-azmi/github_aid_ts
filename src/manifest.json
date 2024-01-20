@@ -1,0 +1,55 @@
+{
+	"$schema": "https://json.schemastore.org/chrome-manifest",
+	"manifest_version": 3,
+	"name": "Github Aid",
+	"content_scripts": [
+		{
+			"matches": [
+				"*://github.com/*"
+			],
+			"js": [
+				"./js/background.js"
+			]
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"*.js"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
+	],
+	"icons": {
+		"16": "./icon/eldercat_16.png",
+		"32": "./icon/eldercat_32.png",
+		"48": "./icon/eldercat_48.png",
+		"64": "./icon/eldercat_64.png",
+		"128": "./icon/eldercat_128.png",
+		"256": "./icon/eldercat_256.png"
+	},
+	"options_ui": {
+		"page": "./html/option.html",
+		"open_in_tab": false
+	},
+	"permissions": [
+		"storage"
+	],
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self';"
+	},
+	"action": {
+		"default_icon": {
+			"16": "./icon/eldercat_16.png",
+			"32": "./icon/eldercat_32.png",
+			"48": "./icon/eldercat_48.png",
+			"64": "./icon/eldercat_64.png",
+			"128": "./icon/eldercat_128.png",
+			"256": "./icon/eldercat_256.png"
+		},
+		"default_popup": "./html/popup.html",
+		"default_title": "Github Aid"
+	}
+}

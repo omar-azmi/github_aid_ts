@@ -21,9 +21,11 @@ export interface SizeInfo {
 }
 
 export const getCurrentRepoPath = (): RepoPath => {
-	const path = window.location.pathname.split("/")
+	const
+		pathname = window.location.pathname,
+		path = pathname.split("/")
 	if (path[0] === "") { path.shift() }
-	if (path.length >= 2) { console.warn("failed to parse the repository's location from the current url") }
+	if (path.length < 2) { console.warn("failed to parse the repository's location from the current url:", pathname) }
 	return {
 		owner: path.shift()!,
 		repo: path.shift()!,
