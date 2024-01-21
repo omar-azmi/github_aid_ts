@@ -1,5 +1,6 @@
-import { getCurrentRepoPath, getRepoSizeInfo } from "./call_gh_api.ts"
+import { RestAPI } from "./gh_rest_api.ts"
 import { debounceAndShare, humanReadableBytesize, memorize } from "./deps.ts"
+import { getCurrentURL } from "./typedefs.ts"
 
 export const getDirectoryTableDOM = memorize((): HTMLTableElement => {
 	return document.querySelector("#folders-and-files + table") as HTMLTableElement
@@ -42,7 +43,7 @@ export const addSizeButton = (): boolean => {
 		})
 		size_button_header_dom.setAttribute("style", "width: 3rem;")
 		table_header_dom.appendChild(size_button_header_dom)
-		if(siteIsRepoHomepage()) {
+		if (siteIsRepoHomepage()) {
 			size_button_cell_dom.appendChild(size_button_dom)
 			table_dom.querySelector("tbody > tr")!.appendChild(size_button_cell_dom)
 		} else {
@@ -88,8 +89,11 @@ export const getCurrentDirectoryEntries = (): Map<string, DirectoryEntry> => {
 export const previewSizes = async () => {
 	const
 		entries = getCurrentDirectoryEntries(),
-		size_info = await getRepoSizeInfo(getCurrentRepoPath())
-	size_info.children?.forEach((size_entry) => {
+		url = getCurrentURL(),
+		api_caller = new RestAPI(url),
+		folder_pathname = api_caller.parseEntryPath(url)!,
+		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname)
+	folder_size_info.forEach((size_entry) => {
 		entries.get(size_entry.name)?.setSize(size_entry.size)
 	})
 }
