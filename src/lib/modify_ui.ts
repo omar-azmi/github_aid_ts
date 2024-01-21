@@ -1,11 +1,10 @@
-import { RestAPI } from "./gh_rest_api.ts"
 import { debounceAndShare, humanReadableBytesize, memorize } from "./deps.ts"
+import { RestAPI } from "./gh_rest_api.ts"
 import { getCurrentURL } from "./typedefs.ts"
 
 export const getDirectoryTableDOM = memorize((): HTMLTableElement => {
 	return document.querySelector("#folders-and-files + table") as HTMLTableElement
 }) as (() => HTMLTableElement)
-
 
 export const siteIsRepoHomepage = (): boolean => {
 	return getDirectoryTableDOM().querySelector("tbody")?.firstElementChild?.id?.startsWith("folder-row-") ? false : true
@@ -18,37 +17,36 @@ export const addHomepageSizeButton = (): boolean => {
 	throw Error()
 }
 
-export const addSizeButton = (): boolean => {
+const injectButtonInTopRow = (button_text: string = "", row_id: string = "github_aid"): HTMLButtonElement => {
 	const
-		table_dom = getDirectoryTableDOM(),
-		table_header_dom = table_dom.querySelector("thead > tr")!
-	if (!table_dom.querySelector("#size_button_header")) {
-		// add the header button, and return `true` for success
-		// first we create the following table header element:
-		// `<th style="width: 4rem;" id="size_button_header"><button type="button" title="Size">Size</button></th>`
-		const
-			size_button_header_dom = document.createElement("th"),
-			size_button_cell_dom = document.createElement("td"),
-			size_button_dom = document.createElement("button")
-		size_button_dom.setAttribute("id", "size_button_header")
-		size_button_dom.setAttribute("type", "button")
-		size_button_dom.setAttribute("style", "width: 100%; padding: 0px; margin: 0px;")
-		size_button_dom.setAttribute("title", "Size")
-		size_button_dom.innerHTML = "Size"
-		size_button_dom.onclick = debounceAndShare(1000, () => {
-			// make the table column correspondig to size longer now that the user has clicked on the button.
-			// this ensures that the rows do not expand due to the text of the individual bytesizes, resulting in a linebreak in each row.
-			size_button_header_dom.setAttribute("style", "width: 6rem;")
-			return previewSizes()
-		})
-		size_button_header_dom.setAttribute("style", "width: 3rem;")
-		table_header_dom.appendChild(size_button_header_dom)
-		if (siteIsRepoHomepage()) {
-			size_button_cell_dom.appendChild(size_button_dom)
-			table_dom.querySelector("tbody > tr")!.appendChild(size_button_cell_dom)
-		} else {
-			size_button_header_dom.appendChild(size_button_dom)
-		}
+		table_body = getDirectoryTableDOM().querySelector("tbody")!,
+		row_dom = document.createElement("tr"),
+		cell_dom = document.createElement("td"),
+		button_dom = document.createElement("button")
+	row_dom.id = row_id
+	button_dom.innerHTML = button_text
+	button_dom.setAttribute("style", "width: 100%;")
+	cell_dom.setAttribute("colspan", "3")
+	row_dom.appendChild(cell_dom).appendChild(button_dom)
+	table_body.insertBefore(row_dom, table_body.children[siteIsRepoHomepage() ? 1 : 0])
+	return button_dom
+}
+
+export const injectSizeButton = (): boolean => {
+	const already_exists = getDirectoryTableDOM().querySelector("tbody > #github_aid_size") ? true : false
+	if (!already_exists) {
+		const button_dom = injectButtonInTopRow("get content sizes", "github_aid_size")
+		button_dom.onclick = debounceAndShare(1000, previewSizes)
+		return true
+	}
+	return false
+}
+
+export const injectDownloadButton = (): boolean => {
+	const already_exists = getDirectoryTableDOM().querySelector("tbody > #github_aid_download") ? true : false
+	if (!already_exists) {
+		const button_dom = injectButtonInTopRow("toggle download selected", "github_aid_download")
+		// button_dom.onclick = TODO
 		return true
 	}
 	return false
@@ -58,37 +56,35 @@ class DirectoryEntry {
 	name: string
 	dom: HTMLTableRowElement
 
+	/**
+	 * @param dom_element corresponds to the table-row element of a single folder/file entry
+	*/
 	constructor(dom_element: HTMLTableRowElement) {
 		this.dom = dom_element
-		this.name = this.getName()
+		this.name = this.parseName()
 	}
 
-	private getName() {
+	private parseName() {
 		return (this.dom.querySelector("div:first-child") as HTMLElement).innerText
 	}
 
 	setSize(bytesize: number) {
-		let table_cell = this.dom.lastElementChild
-		if (!table_cell || !table_cell.classList.contains("directory_size")) {
-			table_cell = document.createElement("td")
-			table_cell.classList.add("directory_size")
-			this.dom.appendChild(table_cell)
-		}
-		table_cell.innerHTML = `<div>${humanReadableBytesize(bytesize)}</div>`
+		const table_cell = this.dom.querySelector("td > div.react-directory-commit-age")!
+		table_cell.innerHTML = humanReadableBytesize(bytesize)
 	}
-}
 
-export const getCurrentDirectoryEntries = (): Map<string, DirectoryEntry> => {
-	const
-		rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll("tbody > tr[id^=\"folder-row-\"]") as any,
-		entries_arr: DirectoryEntry[] = [...rows].map((elem) => new DirectoryEntry(elem)),
-		entries = new Map<string, DirectoryEntry>(entries_arr.map((entry) => [entry.name, entry]))
-	return entries
+	static parseCurrentPage(): Map<string, DirectoryEntry> {
+		const
+			rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll("tbody > tr[id^=\"folder-row-\"]") as any,
+			entries_arr: DirectoryEntry[] = [...rows].map((elem) => new DirectoryEntry(elem)),
+			entries = new Map<string, DirectoryEntry>(entries_arr.map((entry) => [entry.name, entry]))
+		return entries
+	}
 }
 
 export const previewSizes = async () => {
 	const
-		entries = getCurrentDirectoryEntries(),
+		entries = DirectoryEntry.parseCurrentPage(),
 		url = getCurrentURL(),
 		api_caller = new RestAPI(url),
 		folder_pathname = api_caller.parseEntryPath(url)!,

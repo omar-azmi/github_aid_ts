@@ -7,8 +7,8 @@
  * for that, we have to specify in "manifest.json": `web_accessible_resources = [{resources: ["*.js"], matches: "<all_urls>"}]`.
  * which is basically saying: javacript within "<all_urls>" in this extension can load the resource url_pattern "*.js" (all javascript files).
 */
-// import { parseRepoEntryPath, getCurrentURL } from "../lib/typedefs.ts"
-// import { addSizeButton } from "../lib/modify_ui.ts"
+// import { getCurrentURL, parseRepoEntryPath } from "../lib/typedefs.ts"
+// import { injectDownloadButton, injectSizeButton } from "../lib/modify_ui.ts"
 
 declare global {
 	const navigation: Navigation
@@ -28,7 +28,7 @@ const reserved_fullpaths = new Set([
 const run_content_script = (async () => {
 	const
 		{ parseRepoEntryPath, getCurrentURL } = await import("../lib/typedefs.ts"),
-		{ addSizeButton } = await import("../lib/modify_ui.ts")
+		{ injectDownloadButton, injectSizeButton } = await import("../lib/modify_ui.ts")
 
 	const onPageReload = () => {
 		const repo_path = parseRepoEntryPath(getCurrentURL())
@@ -38,7 +38,8 @@ const run_content_script = (async () => {
 			!reserved_repos.has(repo_path.repo) &&
 			!reserved_fullpaths.has(repo_path.fullpath?.split("/")[0])
 		) {
-			addSizeButton()
+			injectDownloadButton()
+			injectSizeButton()
 		}
 	}
 
