@@ -29,12 +29,8 @@
 		"build-1": "deno run -A ./build_1.ts",
 		"build-2": "deno run -A ./build_2.ts",
 		"build-all": "deno task build-1 && deno task build-2",
-		"build-all-log": "deno task build-1 --log-only && deno task build-2 --log-only",
-		"build-dist": "deno run -A ./build_dist.ts",
+		"build-all-log-only": "deno task build-1 --log-only && deno task build-2 --log-only",
 		"build-docs": "deno run -A ./build_docs.ts",
-		"build-npm": "deno run -A ./build_npm.ts",
-		"build-npm-dist": "cd \"./npm/\" && npm run build-dist",
-		"clean": "deno run -A ./clean.ts",
-		"test": "deno test -A ./src/mod.ts && deno test -A ./test/"
+		"clean": "deno run -A ./clean.ts"
 	}
 }

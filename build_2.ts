@@ -6,10 +6,12 @@
  * - "./dist/${extension_name}/html/"
 */
 
-import { doubleCompileFiles, ensureDir, ensureFile, esstop, getDenoJson, pathJoin, relativePath, walkDir } from "./build_tools.ts"
+import { doubleCompileFiles, ensureDir, ensureFile, getDenoJson, pathJoin, walkDir } from "./build_tools.ts"
 
 const
-	log_only = Deno.args[0] === "--log-only" ? true : false,
+	shell_args = new Set(Deno.args),
+	log_only = shell_args.delete("--log-only"),
+	shell_rest_args = [...shell_args],
 	deno_json = await getDenoJson()
 
 // define the typescript source directories, and destination directory
@@ -38,7 +40,7 @@ const output_files = await doubleCompileFiles("", dst_dir,
 		entryPoints: ts_files,
 		outbase: src_dir,
 		bundle: true,
-		splitting: true, // `background.js` cannot do esm imports unfortunately
+		splitting: true,
 		platform: "browser",
 	},
 	{ minify: true },
