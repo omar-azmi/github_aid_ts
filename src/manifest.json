@@ -49,7 +49,7 @@
 			"128": "./icon/eldercat_128.png",
 			"256": "./icon/eldercat_256.png"
 		},
-		"default_popup": "./html/popup.html",
+		"default_popup": "./html/option.html",
 		"default_title": "Github Aid"
 	}
 }
