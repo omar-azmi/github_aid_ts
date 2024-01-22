@@ -59,13 +59,14 @@ export class GraphQLAPI extends GithubAPI {
 			recursive = options.recursive === false ? undefined : options.recursive,
 			recursion_depth = recursive === true ? default_recursion_depth : recursive,
 			branch_colon_path = branch + ":" + removeLeadingSlash(folder_pathname),
-			graphql_post_header: HeadersInit = {
-				"Content-Type": "application/json",
-				"Authorization": `bearer ${this.auth}`,
+			reqest_header: HeadersInit = {
+				"content-type": "application/json",
+				"accept": "application/vnd.github+json",
+				"authorization": `bearer ${this.auth}`,
 			},
 			response = await (await fetch(graphql_url, {
 				method: "POST",
-				headers: graphql_post_header,
+				headers: reqest_header,
 				body: JSON.stringify({
 					query: create_recursive_query(recursion_depth),
 					variables: { owner, repo, branch_colon_path }

@@ -7,7 +7,17 @@ export class RestAPI extends GithubAPI {
 		// TODO: implement options.recursive for folders. I think you can add a "?recursive=${depth}" to your fetch call for that
 		const
 			{ owner, repo } = this.repo,
-			folder_contents: FolderSizeInfo & { [key: string]: any } = await (await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder_pathname}`)).json()
+			reqest_header_auth: { authorization: string } | {} = this.auth ? { "authorization": `bearer ${this.auth}` } : {},
+			reqest_header: HeadersInit = {
+				"accept": "application/vnd.github+json",
+				...reqest_header_auth
+			},
+			folder_contents: FolderSizeInfo & { [key: string]: any } = await (
+				await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder_pathname}`, {
+					method: "GET",
+					headers: reqest_header,
+				})
+			).json()
 		if (!array_isArray(folder_contents)) {
 			throw Error("failed to fetch folder contents in correct format. fetch reuest was made for folder_pathname: " + folder_pathname)
 		}

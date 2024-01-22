@@ -13,7 +13,7 @@ export const getBrowser = () => {
 		typeof chrome !== "undefined" ?
 			chrome :
 			undefined
-	return possible_browser?.runtime?.id ? possible_browser : undefined
+	return possible_browser?.runtime ? possible_browser : undefined
 }
 
 const math_random = Math.random
@@ -80,7 +80,35 @@ export const config = {
 		images: new URL("./images/", root_dir),
 		icon: new URL("./icon/", root_dir),
 		js: new URL("./js/", root_dir),
-	},
+	}
 }
 
-export const your_github_auth_token = "ghp_XYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456"
+export interface StorageSchema {
+	githubToken?: string
+	apiMethod?: "rest" | "graphql"
+}
+
+class SimpleStorage<SCHEMA> {
+	private temp: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]> = new Map()
+
+	async get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]> {
+		const browser = getBrowser()
+		if (browser) {
+			return (await browser.storage.sync.get(key as any) as SCHEMA)[key]
+		}
+		return this.temp.get(key) as SCHEMA[K]
+	}
+
+	async set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void> {
+		const browser = getBrowser()
+		if (browser) {
+			await browser.storage.sync.set({
+				[key]: value as any
+			})
+		} else {
+			this.temp.set(key, value)
+		}
+	}
+}
+
+export const storage = new SimpleStorage<StorageSchema>()

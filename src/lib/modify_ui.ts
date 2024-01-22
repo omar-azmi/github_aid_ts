@@ -1,4 +1,4 @@
-import { debounceAndShare, humanReadableBytesize, memorize, your_github_auth_token } from "./deps.ts"
+import { debounceAndShare, humanReadableBytesize, memorize, storage } from "./deps.ts"
 import { GraphQLAPI } from "./gh_graphql_api.ts"
 import { RestAPI } from "./gh_rest_api.ts"
 import { getCurrentURL } from "./typedefs.ts"
@@ -76,7 +76,7 @@ class DirectoryEntry {
 
 	static parseCurrentPage(): Map<string, DirectoryEntry> {
 		const
-			rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll("tbody > tr[id^=\"folder-row-\"]") as any,
+			rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll("tbody > tr[id ^= \"folder-row-\" i]") as any,
 			entries_arr: DirectoryEntry[] = [...rows].map((elem) => new DirectoryEntry(elem)),
 			entries = new Map<string, DirectoryEntry>(entries_arr.map((entry) => [entry.name, entry]))
 		return entries
@@ -87,10 +87,21 @@ export const previewSizes = async () => {
 	const
 		entries = DirectoryEntry.parseCurrentPage(),
 		url = getCurrentURL(),
-		api_caller = new GraphQLAPI(url, your_github_auth_token),
+		github_auth_token = await storage.get("githubToken"),
+		api_caller = (await storage.get("apiMethod")) === "graphql" ?
+			new GraphQLAPI(url, github_auth_token ?? "") :
+			new RestAPI(url, github_auth_token)
+		,
 		folder_pathname = api_caller.parseEntryPath(url)!,
-		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursive: true})
+		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursive: true })
+	// for each retrieved file info, find the DOM table row associated with that file name (if it exists),
+	// and then change the text of the "last commit date" to the file size
 	folder_size_info.forEach((size_entry) => {
 		entries.get(size_entry.name)?.setSize(size_entry.size)
 	})
+	// finally, change the table header's "Last commit date" cell to read "Size"
+	const header_cell_dom = getDirectoryTableDOM().querySelector("thead > tr > th > div[title ^= \"last commit date\" i]") as (HTMLDivElement | null)
+	if (header_cell_dom) {
+		header_cell_dom.innerText = "Size"
+	}
 }
