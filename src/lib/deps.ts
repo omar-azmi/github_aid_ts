@@ -1,5 +1,6 @@
 export { array_isArray } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
+export { sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
 import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
@@ -27,6 +28,24 @@ export const humanReadableBytesize = (bytesize: number): string => {
 		unit = units[i],
 		bytesize_in_unit = (bytesize / (1024 ** i)).toFixed(2)
 	return bytesize_in_unit + " " + unit
+}
+
+/** removes leading (starting position) slashes "/" and dot slashes "./" .
+ * examples:
+ * |            in            |          out         |
+ * |:------------------------:|:--------------------:|
+ * | "./hello/world.txt"      | "hello/world.txt"    |
+ * | "./././hello/world.txt"  | "hello/world.txt"    |
+ * | ".hello/world.txt"       | ".hello/world.txt"   |
+ * | /hello/world.txt"        | "hello/world.txt"    |
+ * | "////hello/world.txt"    | "hello/world.txt"    |
+ * | "/.hello/world.txt"      | ".hello/world.txt"   |
+ * | /./hello/world.txt"      | "hello/world.txt"    |
+ * | "//././/hello/world.txt" | "hello/world.txt"    |
+ * | "../hello/world.txt"     | "../hello/world.txt" |
+*/
+export const removeLeadingSlash = (str: string): string => {
+	return str.replace(/^(\/|\.\/)*/, "")
 }
 
 export const shuffleArray = <T>(arr: Array<T>): Array<T> => {
@@ -63,3 +82,5 @@ export const config = {
 		js: new URL("./js/", root_dir),
 	},
 }
+
+export const your_github_auth_token = "ghp_XYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456"

@@ -1,4 +1,5 @@
-import { debounceAndShare, humanReadableBytesize, memorize } from "./deps.ts"
+import { debounceAndShare, humanReadableBytesize, memorize, your_github_auth_token } from "./deps.ts"
+import { GraphQLAPI } from "./gh_graphql_api.ts"
 import { RestAPI } from "./gh_rest_api.ts"
 import { getCurrentURL } from "./typedefs.ts"
 
@@ -86,9 +87,9 @@ export const previewSizes = async () => {
 	const
 		entries = DirectoryEntry.parseCurrentPage(),
 		url = getCurrentURL(),
-		api_caller = new RestAPI(url),
+		api_caller = new GraphQLAPI(url, your_github_auth_token),
 		folder_pathname = api_caller.parseEntryPath(url)!,
-		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname)
+		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursive: true})
 	folder_size_info.forEach((size_entry) => {
 		entries.get(size_entry.name)?.setSize(size_entry.size)
 	})

@@ -31,6 +31,10 @@ export interface EntrySizeInfo {
 
 export type FolderSizeInfo = Array<EntrySizeInfo>
 
+export interface GetFolderSizeInfo_Options {
+	recursive?: boolean | number
+}
+
 export const getCurrentURL = () => {
 	return new URL(window.location.href)
 }
@@ -55,10 +59,12 @@ export const parseRepoEntryPath = (url: URL): RepoEntryPath | undefined => {
 
 export abstract class GithubAPI {
 	repo: RepoPath
+	auth?: string
 
-	constructor(github_repo_url: URL) {
+	constructor(github_repo_url: URL, authentication_token?: string) {
 		const { owner, repo, branch } = parseRepoEntryPath(github_repo_url)!
 		this.repo = { owner, repo, branch }
+		this.auth = authentication_token
 	}
 
 	parseEntryPath(github_repo_subpath_url: URL): RepoEntryPath["path"] | undefined {
@@ -77,7 +83,7 @@ export abstract class GithubAPI {
 		return parsed_repo.path
 	}
 
-	abstract getFolderSizeInfo(folder_pathname: string): Promise<FolderSizeInfo>
+	abstract getFolderSizeInfo(folder_pathname: string, options?: GetFolderSizeInfo_Options): Promise<FolderSizeInfo>
 
 	/** get the bytesize of the whole repository */
 	abstract getRepoSize(): Promise<number>

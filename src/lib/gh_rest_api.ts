@@ -1,18 +1,19 @@
 import { array_isArray } from "./deps.ts"
-import { FolderSizeInfo, GithubAPI } from "./typedefs.ts"
+import { FolderSizeInfo, GetFolderSizeInfo_Options, GithubAPI } from "./typedefs.ts"
 
 export class RestAPI extends GithubAPI {
-	async getFolderSizeInfo(folder_pathname: string): Promise<FolderSizeInfo> {
+	async getFolderSizeInfo(folder_pathname: string, options: GetFolderSizeInfo_Options = {}): Promise<FolderSizeInfo> {
 		// TODO: what about branch selection?
+		// TODO: implement options.recursive for folders. I think you can add a "?recursive=${depth}" to your fetch call for that
 		const
 			{ owner, repo } = this.repo,
-			folder_contents = await (await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder_pathname}`)).json()
+			folder_contents: FolderSizeInfo & { [key: string]: any } = await (await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder_pathname}`)).json()
 		if (!array_isArray(folder_contents)) {
 			throw Error("failed to fetch folder contents in correct format. fetch reuest was made for folder_pathname: " + folder_pathname)
 		}
-		return folder_contents.map(folder_entry => ({
-			name: folder_entry.name,
-			size: folder_entry.size,
+		return folder_contents.map(entry => ({
+			name: entry.name,
+			size: entry.size,
 		}))
 	}
 
