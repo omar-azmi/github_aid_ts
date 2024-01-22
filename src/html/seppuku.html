@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Seppuku Aid</title>
 	<script src="./seppuku.js" type="module"></script>
+	<link rel="stylesheet" href="../css/modern-normalize.min.css">
 	<style>
 		#seppuku-div {
 			--width: 75vmin;
@@ -16,7 +17,7 @@
 
 		@media screen and (max-width: 640px) {
 			#seppuku-div {
-				--width: calc(100vmin - 5%);
+				--width: calc(100vmin);
 			}
 		}
 
@@ -44,6 +45,7 @@
 			font-family: monospace;
 			font-size: large;
 			font-weight: bold;
+			text-align: center;
 			color: yellow;
 			pointer-events: none;
 			padding: 1rem 0;

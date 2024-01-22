@@ -26,7 +26,7 @@ const seppuku_slogans = /* @__PURE__ */[
 	"sudoku is a sacred ritual, do not disgrace it",
 	"you are a muppet, sudoku is your destiny",
 	"sudoku lets you feel cloud nine",
-	"sign the petition to end the sudoku ban",
+	"sign the petition to end sudoku ban",
 	"your organs will become a fine art",
 	"gunshot is a lazy sudoku",
 	"nippon has the best sudoku knives in the world",
@@ -36,7 +36,7 @@ const seppuku_slogans = /* @__PURE__ */[
 	"sudoku is now tax deductible! save money and your honor!",
 	"your blood will nicely paint a higanbana flower bed",
 	"nippon has a rich sudoku culture",
-	"show me what you are made of",
+	"show me what you are made of!",
 	"hello sudoku, my old friend. i've come to commit you again",
 	"sudoku is now available on amazon prime! order now and get free shipping!",
 	"drinking bleach is a caucasian's immitation of sudoku",
@@ -50,9 +50,22 @@ const seppuku_slogans = /* @__PURE__ */[
 	"what are you waiting for? the shogun is too busy to attend your sudoku",
 	"pray that you become a good piece of art as you fall into eternal slumber",
 	"bodily ketchup will gush out of your guts",
-	"did you enjoy your last obento onee-san prepared for you?",
+	"did you enjoy your final obento onee-san prepared for you?",
 	"there is no esekai for commiters of sudoku. break free of the cycle!",
 	"sudoku lets you become one with the void",
+	`<pre style="margin: -2rem 0 0 0; text-align: center; font-size: 1rem; line-height: calc(1rem * (1.0 - exp(-1)));">┌───┬───┬───┐
+│S  │  K│ILL│
+│ U │  Y│OUR│
+│  D│  S│ELF│
+├───┼───┼───┤
+│I  │O  │   │
+│ S │ K │   │
+│   │  U│   │
+├───┼───┼───┤
+│   │F  │   │
+│   │ U │   │
+│   │  N│   │
+└───┴───┴───┘</pre>`
 ]
 
 export const getSlogan = shuffledDeque(seppuku_slogans)

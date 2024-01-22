@@ -1,4 +1,4 @@
-import { array_isArray, memorize, removeLeadingSlash, sum } from "./deps.ts"
+import { array_isArray, config, memorize, removeLeadingSlash, sum } from "./deps.ts"
 import { FolderSizeInfo, GetFolderSizeInfo_Options, GithubAPI } from "./typedefs.ts"
 
 interface GraphQLResponse<T> {
@@ -17,7 +17,6 @@ type GraphQLRepositoryFolderEntry = {
 }
 type GraphQLRepositoryData = { repository: GraphQLRepositoryFolderEntry }
 
-const graphql_url = "https://api.github.com/graphql"
 const default_recursion_depth = 5
 const create_recursive_query = memorize((depth: number = 1) => {
 	let top_string_stack = `
@@ -64,7 +63,7 @@ export class GraphQLAPI extends GithubAPI {
 				"accept": "application/vnd.github+json",
 				"authorization": `bearer ${this.auth}`,
 			},
-			response = await (await fetch(graphql_url, {
+			response = await (await fetch(config.api.graphql, {
 				method: "POST",
 				headers: reqest_header,
 				body: JSON.stringify({

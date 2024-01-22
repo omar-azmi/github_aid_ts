@@ -34,14 +34,11 @@ export const humanReadableBytesize = (bytesize: number): string => {
  * examples:
  * |            in            |          out         |
  * |:------------------------:|:--------------------:|
- * | "./hello/world.txt"      | "hello/world.txt"    |
  * | "./././hello/world.txt"  | "hello/world.txt"    |
- * | ".hello/world.txt"       | ".hello/world.txt"   |
- * | /hello/world.txt"        | "hello/world.txt"    |
  * | "////hello/world.txt"    | "hello/world.txt"    |
- * | "/.hello/world.txt"      | ".hello/world.txt"   |
- * | /./hello/world.txt"      | "hello/world.txt"    |
  * | "//././/hello/world.txt" | "hello/world.txt"    |
+ * | ".hello/world.txt"       | ".hello/world.txt"   |
+ * | "/.hello/world.txt"      | ".hello/world.txt"   |
  * | "../hello/world.txt"     | "../hello/world.txt" |
 */
 export const removeLeadingSlash = (str: string): string => {
@@ -72,22 +69,6 @@ export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, nu
 	}
 }
 
-/** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
-const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
-export const config = {
-	dir: {
-		root: new URL("./", root_dir),
-		images: new URL("./images/", root_dir),
-		icon: new URL("./icon/", root_dir),
-		js: new URL("./js/", root_dir),
-	}
-}
-
-export interface StorageSchema {
-	githubToken?: string
-	apiMethod?: "rest" | "graphql"
-}
-
 class SimpleStorage<SCHEMA> {
 	private temp: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]> = new Map()
 
@@ -111,4 +92,35 @@ class SimpleStorage<SCHEMA> {
 	}
 }
 
+export interface StorageSchema {
+	githubToken?: string
+	apiMethod?: "rest" | "graphql"
+}
+
+
 export const storage = new SimpleStorage<StorageSchema>()
+
+/** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
+const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
+export const config = {
+	dir: {
+		root: new URL("./", root_dir),
+		images: new URL("./images/", root_dir),
+		icon: new URL("./icon/", root_dir),
+		js: new URL("./js/", root_dir),
+	},
+	api: {
+		"rest": "https://api.github.com/repos",
+		"graphql": "https://api.github.com/graphql",
+	}
+}
+
+// - [] TODO: add option for setting recursion folder amount
+// - [] TODO: add option for branch selection for rest api (you'll have to use the "tree" rest api instead of "repository")
+// - [] TODO: add option feature for checking total repo size, including the ui associated with it
+// - [] TODO: add option toggling which ui elements/buttons get injected onto the page
+// - [] TODO: implement downloading files feature. you will also need to add a separate control for the amount of permitted recursions
+// - [] TODO: develop a ".tar" file encoder and decoder
+// - [] TODO: add ui associated with the download feature
+// - [] TODO: fix the cropping of the `option.html` page when rendered as a popup page
+// - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun

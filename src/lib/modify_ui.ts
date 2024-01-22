@@ -90,8 +90,7 @@ export const previewSizes = async () => {
 		github_auth_token = await storage.get("githubToken"),
 		api_caller = (await storage.get("apiMethod")) === "graphql" ?
 			new GraphQLAPI(url, github_auth_token ?? "") :
-			new RestAPI(url, github_auth_token)
-		,
+			new RestAPI(url, github_auth_token),
 		folder_pathname = api_caller.parseEntryPath(url)!,
 		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursive: true })
 	// for each retrieved file info, find the DOM table row associated with that file name (if it exists),

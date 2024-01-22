@@ -1,4 +1,4 @@
-import { array_isArray } from "./deps.ts"
+import { array_isArray, config } from "./deps.ts"
 import { FolderSizeInfo, GetFolderSizeInfo_Options, GithubAPI } from "./typedefs.ts"
 
 export class RestAPI extends GithubAPI {
@@ -13,7 +13,7 @@ export class RestAPI extends GithubAPI {
 				...reqest_header_auth
 			},
 			folder_contents: FolderSizeInfo & { [key: string]: any } = await (
-				await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder_pathname}`, {
+				await fetch(config.api.rest + `/${owner}/${repo}/contents/${folder_pathname}`, {
 					method: "GET",
 					headers: reqest_header,
 				})
@@ -30,7 +30,7 @@ export class RestAPI extends GithubAPI {
 	async getRepoSize(): Promise<number> {
 		const
 			{ owner, repo } = this.repo,
-			repo_info = await (await fetch(`https://api.github.com/repos/${owner}/${repo}`)).json()
+			repo_info = await (await fetch(config.api.rest + `/${owner}/${repo}`)).json()
 		return repo_info.size * 1024 // `repo.size` is actually in kilobytes instead of bytes, so we need to convert it to bytes
 	}
 
@@ -39,7 +39,7 @@ export class RestAPI extends GithubAPI {
 		throw new Error("method incorrectly implemented.")
 		const
 			{ owner, repo, branch } = this.repo,
-			branch_info = await (await fetch(`https://api.github.com/repos/${owner}/${repo}/tree/${branch}`)).json()
+			branch_info = await (await fetch(config.api.rest + `/${owner}/${repo}/tree/${branch}`)).json()
 		return branch_info.size * 1024 // `repo.size` is actually in kilobytes instead of bytes, so we need to convert it to bytes
 	}
 
