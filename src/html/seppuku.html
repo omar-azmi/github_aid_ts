@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,7 +9,9 @@
 	<style>
 		#seppuku-div {
 			--width: 75vmin;
-			--rotation: 15deg;
+			--text-rotation: 15deg;
+			--text-left-percent: 50;
+			--text-width: calc(var(--width) * (1.0 - var(--text-left-percent) / 100));
 		}
 
 		@media screen and (max-width: 640px) {
@@ -23,20 +26,20 @@
 
 		@keyframes seppuku-text-animation {
 			50% {
-				transform: rotate(var(--rotation)) scale(1.05);
+				transform: rotate(var(--text-rotation)) scale(1.05);
 			}
 
 			0%,
 			100% {
-				transform: rotate(var(--rotation)) scale(0.95);
+				transform: rotate(var(--text-rotation)) scale(0.95);
 			}
 		}
 
 		#seppuku-div>span {
 			position: absolute;
-			left: calc(var(--width) * (1.0 - 0.5 * cos(var(--rotation))));
-			top: calc(var(--width) / 4 * sin(var(--rotation)));
-			width: calc(var(--width) / 2);
+			left: calc(var(--width) * var(--text-left-percent) / 100 * cos(var(--text-rotation)));
+			top: calc(var(--text-width) / 2 * sin(var(--text-rotation)));
+			width: var(--text-width);
 			animation: seppuku-text-animation 2s cubic-bezier(0.5, 0, 1, 0.5) infinite;
 			font-family: monospace;
 			font-size: large;

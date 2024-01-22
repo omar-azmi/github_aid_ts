@@ -41,6 +41,18 @@ const seppuku_slogans = /* @__PURE__ */[
 	"sudoku is now available on amazon prime! order now and get free shipping!",
 	"drinking bleach is a caucasian's immitation of sudoku",
 	"we are experiencing high volumes of sudoku, please hold on the line to restore your honor",
+	"you hear the crowd cheer for you",
+	"sudoku is everyone's raison d'etre",
+	"you hear the crowd chant words of encouragement",
+	"\"do it! do it! do it!\", your prescence makes the crowd lively",
+	"don't make the crowd wait for too long",
+	"your game of sudoku will make way into textbooks, and inspire a whole generation",
+	"what are you waiting for? the shogun is too busy to attend your sudoku",
+	"pray that you become a good piece of art as you fall into eternal slumber",
+	"bodily ketchup will gush out of your guts",
+	"did you enjoy your last obento onee-san prepared for you?",
+	"there is no esekai for commiters of sudoku. break free of the cycle!",
+	"sudoku lets you become one with the void",
 ]
 
 export const getSlogan = shuffledDeque(seppuku_slogans)
