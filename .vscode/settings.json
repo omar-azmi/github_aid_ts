@@ -1,0 +1,26 @@
+{
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.inlineSuggest.suppressSuggestions": true,
+	"files.insertFinalNewline": true,
+	"files.eol": "\r\n",
+	"telemetry.telemetryLevel": "off",
+	"html.format.wrapLineLength": 360,
+	"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+	"javascript.format.semicolons": "remove",
+	"javascript.preferences.quoteStyle": "double",
+	"typescript.format.semicolons": "remove",
+	"typescript.preferences.quoteStyle": "double",
+	"typescript.inlayHints.parameterNames.enabled": "none",
+	"typescript.inlayHints.enumMemberValues.enabled": false,
+	"typescript.inlayHints.functionLikeReturnTypes.enabled": false,
+	"typescript.inlayHints.parameterTypes.enabled": false,
+	"typescript.inlayHints.propertyDeclarationTypes.enabled": false,
+	"typescript.inlayHints.variableTypes.enabled": false,
+	"typescript.inlayHints.variableTypes.suppressWhenTypeMatchesName": false,
+	"deno.unstable": true,
+	"deno.enable": true,
+	"deno.disablePaths": [
+		"**/package.json"
+	]
+}
