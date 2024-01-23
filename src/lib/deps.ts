@@ -1,3 +1,5 @@
+/// <reference types="npm:web-ext-types" />
+
 export { array_isArray, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
 export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
@@ -5,7 +7,7 @@ export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmet
 import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
-// @deno-types="npm:web-ext-types"
+
 declare const chrome: typeof browser
 export const getBrowser = () => {
 	const possible_browser = typeof browser !== "undefined" ?
@@ -118,12 +120,21 @@ class SimpleStorage<SCHEMA> {
 	}
 }
 
+interface layoutCellConfig {
+	span: 1 | 2 | 3 | 4
+	feature: "size" | "download" | "diskspace"
+}
+
 export interface StorageSchema {
 	githubToken?: string
 	apiMethod?: "rest" | "graphql"
 	recursionLimit?: number
+	layout: [
+		row0?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
+		row1?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
+		row2?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
+	]
 }
-
 
 export const storage = new SimpleStorage<StorageSchema>()
 
@@ -156,3 +167,6 @@ export const config = {
 //            as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
 //            where as the folder sizes has it stored as the key "folder".
 //            potential fix: make table rows be identifiable by the name string before any slashes ("/")
+// - [] TODO: create a build process for generating bookmarkletes that function in the same way as the extension, with predefined `config` overrides/mutations
+// - [] TODO: reject github tokens of incorrect length, and inform the user
+// - [] TODO: in the `options.html` page, use one save button to save everything. the button must be at the top of the page

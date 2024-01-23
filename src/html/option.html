@@ -8,15 +8,25 @@
 	<script src="./option.js" type="module"></script>
 	<link rel="stylesheet" href="../css/modern-normalize.min.css">
 	<style>
+		html,
+		body {
+			max-width: 480px;
+			width: 24rem;
+		}
+
 		body {
 			font-family: monospace;
 			font-size: 1rem;
-			width: 24rem;
-			max-width: 480px;
 			margin: 0;
 			padding: 1rem;
 			border: 1px solid #ccc;
 			border-radius: 5px;
+		}
+
+		@media screen and (max-width: 420px) {
+			body {
+				width: calc(100vw - 1rem);
+			}
 		}
 
 		input[type="text"],
@@ -32,27 +42,53 @@
 
 		button {
 			position: relative;
-			left: calc(50% - 8rem / 2);
 			background-color: #7a7a7a;
 			color: white;
 			border: none;
 			padding: 0.5rem 0rem;
 			text-align: center;
-			display: block;
-			width: 8rem;
 			cursor: pointer;
 			border-radius: 0.5rem;
+			transition: all 0.1s ease-out;
 		}
 
-		.save_button {
-			background-color: limegreen;
+		button:hover {
+			filter: brightness(90%);
+			scale: 0.95;
 		}
 
 		div {
+			position: relative;
 			border: 1px solid #ccc;
 			border-radius: 5px;
 			margin-top: 1rem;
 			padding: 0.5rem;
+		}
+
+		#layout_setup {
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr;
+			grid-template-rows: 1fr 1fr 1fr;
+			gap: 3px 3px;
+			grid-auto-flow: row;
+		}
+
+		.layout-cell {
+			position: relative;
+			width: 100%;
+			background-color: cornflowerblue;
+		}
+
+		.layout-cell>select {
+			display: block;
+			width: 100%;
+			height: 2rem;
+			background: transparent;
+			text-align: center;
+		}
+
+		.disabled {
+			background-color: slategray !important;
 		}
 
 		.footer {
@@ -63,23 +99,67 @@
 
 <body>
 	<h2>Github Aid options</h2>
+
+	<div style="
+		display: grid;
+		grid-template-rows: 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+	">
+		<button id="storage_reset" style="background-color: coral;">reset</button>
+		<button id="storage_load" style="background-color: cornflowerblue;">reload</button>
+		<button id="storage_save" style="background-color: limegreen;">save</button>
+	</div>
+
 	<div>
 		<label for="token">Enter Github Access Token</label>
 		<input type="text" id="token" name="token">
-		<button id="save_token" class="save_button">save</button>
 	</div>
-	<div>
+
+	<div id="api_mode">
 		<p>Select Github API mode to use</p>
 		<input type="radio" id="use_rest_api" name="api_mode" value="rest">
 		<label for="use_rest_api">REST &nbsp;&nbsp;&nbsp;(access token is optional)</label><br>
 		<input type="radio" id="use_graphql_api" name="api_mode" value="graphql">
 		<label for="use_graphql_api">GraphQL (requires an access token)</label><br>
 	</div>
+
 	<div>
 		<label for="recursion_limit">Enter Recursion Limit for folders</label>
 		<input type="number" id="recursion_limit" name="recursion_limit" value="5" min="1" max="16">
-		<button id="save_recursion_limit" class="save_button">save</button>
 	</div>
+
+	<div>
+		<label for="layout_setup">Configure the injected GUI layout</label>
+		<div id="layout_setup">
+			<span class="layout-cell">
+				<select name="feature-select">
+					<option selected disabled>feature</option>
+					<option value="">none</option>
+					<option value="diskspace">diskspace</option>
+					<option value="size">size</option>
+					<option value="download">download</option>
+				</select>
+				<select name="span-select">
+					<option selected disabled>span</option>
+					<option value="0">0</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+				</select>
+			</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+			<span class="layout-cell">hello</span>
+		</div>
+	</div>
+
 	<div class="footer">
 		<p>
 			<a href="https://github.com/omar-azmi/github_aid_ts/" target="_blank" rel="noopener">star on github</a>

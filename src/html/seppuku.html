@@ -13,11 +13,13 @@
 			--text-rotation: 15deg;
 			--text-left-percent: 50;
 			--text-width: calc(var(--width) * (1.0 - var(--text-left-percent) / 100));
+			position: relative;
+			overflow: hidden;
 		}
 
 		@media screen and (max-width: 640px) {
 			#seppuku-div {
-				--width: calc(100vmin);
+				--width: 100vmin;
 			}
 		}
 
