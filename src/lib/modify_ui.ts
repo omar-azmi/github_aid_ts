@@ -92,7 +92,11 @@ export const previewSizes = async () => {
 			new GraphQLAPI(url, github_auth_token ?? "") :
 			new RestAPI(url, github_auth_token),
 		recursion_depth = await storage.get("recursionLimit"),
-		folder_pathname = api_caller.parseEntryPath(url)!,
+		folder_pathname = api_caller.parseEntryPath(url)
+	if (folder_pathname === undefined) {
+		throw Error("failed to parse the folder_pathname from current url")
+	}
+	const
 		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursion: recursion_depth })
 	// for each retrieved file info, find the DOM table row associated with that file name (if it exists),
 	// and then change the text of the "last commit date" to the file size

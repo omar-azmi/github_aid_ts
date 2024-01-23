@@ -52,9 +52,10 @@ export class GraphQLAPI extends GithubAPI {
 	}
 
 	async getFolderSizeInfo(folder_pathname: string, options: GetFolderSizeInfo_Options = {}): Promise<FolderSizeInfo> {
+		folder_pathname = removeLeadingSlash(folder_pathname)
 		const
 			{ owner, repo, branch } = this.repo,
-			branch_colon_path = branch + ":" + removeLeadingSlash(folder_pathname),
+			branch_colon_path = branch + ":" + folder_pathname,
 			reqest_header: HeadersInit = {
 				"content-type": "application/json",
 				"accept": "application/vnd.github+json",

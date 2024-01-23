@@ -1,4 +1,4 @@
-export { array_isArray } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+export { array_isArray, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
 export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
@@ -142,8 +142,8 @@ export const config = {
 	}
 }
 
-// - [] TODO: add option for setting recursion folder amount
-// - [] TODO: add option for branch selection for rest api (you'll have to use the "tree" rest api instead of "repository")
+// - [x] TODO: add option for setting recursion folder amount
+// - [x] TODO: add option for branch selection for rest api (you'll have to use the "tree" rest api instead of "repository")
 // - [] TODO: add option feature for checking total repo size, including the ui associated with it
 // - [] TODO: add option toggling which ui elements/buttons get injected onto the page
 // - [] TODO: implement downloading files feature. you will also need to add a separate control for the amount of permitted recursions
@@ -152,3 +152,7 @@ export const config = {
 // - [x] TODO: fix the cropping of the `option.html` page when rendered as a popup page
 // - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun
 // - [] TODO: add option to choose whether to strictly adhere to REST api in incognito mode, along with no authentication key
+// - [] TODO: ISSUE: folders with only one subfolder (and no files) are previewed as "folder/subfolder" in the github table-view ui.
+//            as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
+//            where as the folder sizes has it stored as the key "folder".
+//            potential fix: make table rows be identifiable by the name string before any slashes ("/")
