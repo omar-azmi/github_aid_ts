@@ -17,7 +17,6 @@ type GraphQLRepositoryFolderEntry = {
 }
 type GraphQLRepositoryData = { repository: GraphQLRepositoryFolderEntry }
 
-const default_recursion_depth = 5
 const create_recursive_query = memorize((depth: number = 1) => {
 	let top_string_stack = `
 query GetSubdirContents($owner: String!, $repo: String!, $branch_colon_path: String!) {
@@ -55,8 +54,6 @@ export class GraphQLAPI extends GithubAPI {
 	async getFolderSizeInfo(folder_pathname: string, options: GetFolderSizeInfo_Options = {}): Promise<FolderSizeInfo> {
 		const
 			{ owner, repo, branch } = this.repo,
-			recursive = options.recursive === false ? undefined : options.recursive,
-			recursion_depth = recursive === true ? default_recursion_depth : recursive,
 			branch_colon_path = branch + ":" + removeLeadingSlash(folder_pathname),
 			reqest_header: HeadersInit = {
 				"content-type": "application/json",
@@ -67,7 +64,7 @@ export class GraphQLAPI extends GithubAPI {
 				method: "POST",
 				headers: reqest_header,
 				body: JSON.stringify({
-					query: create_recursive_query(recursion_depth),
+					query: create_recursive_query(options.recursion),
 					variables: { owner, repo, branch_colon_path }
 				}),
 			})).json() as GraphQLResponse<GraphQLRepositoryData>

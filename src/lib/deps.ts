@@ -1,6 +1,6 @@
 export { array_isArray } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
-export { sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
+export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
 import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
@@ -20,6 +20,14 @@ const math_random = Math.random
 
 const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
 
+/** format bytesizes into readable sizes.
+ * note that the magnitude of a "killo" is defined as `1024`, and not SI standard `1000`. <br>
+ * examples:
+ * |      in     |     out     |
+ * |:-----------:|:-----------:|
+ * |    12000    | "11.72 KiB" |
+ * | 1.6*1000000 |  "1.53 MiB" |
+*/
 export const humanReadableBytesize = (bytesize: number): string => {
 	let i = 0
 	while (bytesize > 1024 ** i) { i++ }
@@ -30,7 +38,7 @@ export const humanReadableBytesize = (bytesize: number): string => {
 	return bytesize_in_unit + " " + unit
 }
 
-/** removes leading (starting position) slashes "/" and dot slashes "./" .
+/** removes leading (starting position) slashes "/" and dot slashes "./" . <br>
  * examples:
  * |            in            |          out         |
  * |:------------------------:|:--------------------:|
@@ -45,6 +53,7 @@ export const removeLeadingSlash = (str: string): string => {
 	return str.replace(/^(\/|\.\/)*/, "")
 }
 
+/** shuffle an array via mutation. the ordering of elements will be randomized by the end. */
 export const shuffleArray = <T>(arr: Array<T>): Array<T> => {
 	const
 		len = arr.length,
@@ -58,6 +67,19 @@ export const shuffleArray = <T>(arr: Array<T>): Array<T> => {
 	return arr
 }
 
+/** a generator that yields random selected non-repeating elements out of an array.
+ * once the all elements have been yielded, a cycle has been completed.
+ * after a cycle is completed the iterator resets to a new cycle, yielding randomly selected elements once again.
+ * the ordering of the randomly yielded elements will also differ from compared to the first time. <br>
+ * moreover, you can call the iterator with an optional number argument that specifies if you wish to skip ahead a certain number of elements.
+ * - `1`: go to next element (default behavior)
+ * - `0`: receive the same element as before
+ * - `-1`: go to previous next element
+ * - `+ve number`: skip to next `number` of elements
+ * - `-ve number`: go back `number` of elements
+ * 
+ * note that once a cycle is complete, going back won't restore the correct element from the previous cycle, because the info about the previous cycle gets lost.
+*/
 export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, number | undefined> {
 	let i = arr.length // this is only temporary. `i` immediately becomes `0` when the while loop begins
 	while (!array_isEmpty(arr)) {
@@ -69,6 +91,10 @@ export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, nu
 	}
 }
 
+/** a unified non-failing way of storing simple json style key value pairs in either (ordered by priority):
+ * - your local storage (see [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API))
+ * - a temporary `Map` object, which will be valid throughout the lifetime of your script
+*/
 class SimpleStorage<SCHEMA> {
 	private temp: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]> = new Map()
 
@@ -95,6 +121,7 @@ class SimpleStorage<SCHEMA> {
 export interface StorageSchema {
 	githubToken?: string
 	apiMethod?: "rest" | "graphql"
+	recursionLimit?: number
 }
 
 
@@ -122,5 +149,6 @@ export const config = {
 // - [] TODO: implement downloading files feature. you will also need to add a separate control for the amount of permitted recursions
 // - [] TODO: develop a ".tar" file encoder and decoder
 // - [] TODO: add ui associated with the download feature
-// - [] TODO: fix the cropping of the `option.html` page when rendered as a popup page
+// - [x] TODO: fix the cropping of the `option.html` page when rendered as a popup page
 // - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun
+// - [] TODO: add option to choose whether to strictly adhere to REST api in incognito mode, along with no authentication key

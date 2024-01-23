@@ -61,9 +61,13 @@ if (files_only || !(dirs_only || all_js_files)) {
 if (all_js_files || !(dirs_only || files_only)) {
 	const js_files = (await Promise.all(delete_js_in_dir_list.map(async (js_dir) => {
 		const js_files_in_dir: string[] = []
-		for await (const { path } of walkDir(js_dir, { includeDirs: false })) {
-			if (path.endsWith(".js")) {
-				js_files_in_dir.push(path)
+		try { stat = await Deno.stat(js_dir) }
+		catch (error) { return js_files_in_dir }
+		if (stat.isDirectory) {
+			for await (const { path } of walkDir(js_dir, { includeDirs: false })) {
+				if (path.endsWith(".js")) {
+					js_files_in_dir.push(path)
+				}
 			}
 		}
 		return js_files_in_dir

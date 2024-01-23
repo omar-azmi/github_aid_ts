@@ -32,7 +32,7 @@ export interface EntrySizeInfo {
 export type FolderSizeInfo = Array<EntrySizeInfo>
 
 export interface GetFolderSizeInfo_Options {
-	recursive?: boolean | number
+	recursion?: number
 }
 
 export const getCurrentURL = () => {
