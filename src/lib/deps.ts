@@ -152,7 +152,7 @@ export const config = {
 // - [x] TODO: fix the cropping of the `option.html` page when rendered as a popup page
 // - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun
 // - [] TODO: add option to choose whether to strictly adhere to REST api in incognito mode, along with no authentication key
-// - [] TODO: ISSUE: folders with only one subfolder (and no files) are previewed as "folder/subfolder" in the github table-view ui.
+// - [x] TODO: ISSUE: folders with only one subfolder (and no files) are previewed as "folder/subfolder" in the github table-view ui.
 //            as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
 //            where as the folder sizes has it stored as the key "folder".
 //            potential fix: make table rows be identifiable by the name string before any slashes ("/")

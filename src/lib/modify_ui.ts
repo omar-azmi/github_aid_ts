@@ -66,7 +66,13 @@ class DirectoryEntry {
 	}
 
 	private parseName() {
-		return (this.dom.querySelector("div:first-child") as HTMLElement).innerText
+		const
+			displayed_name = (this.dom.querySelector("div:first-child") as HTMLElement).innerText,
+			// folders with exactly one subfolder are displayed as "folder/subfolder" (for example ".github/workflows" is quite common).
+			// in that case, we need to get the actual name of the entry, which preceeds the slash ("/").
+			// in summary, "folder/subfolder" will get parsed as "folder", and ".github/workflows" will be parsed as ".github", as it should be
+			actual_name = displayed_name.split("/", 1)[0]
+		return actual_name
 	}
 
 	setSize(bytesize: number) {
