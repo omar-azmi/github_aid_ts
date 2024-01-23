@@ -120,7 +120,7 @@ class SimpleStorage<SCHEMA> {
 	}
 }
 
-interface layoutCellConfig {
+export interface layoutCellConfig {
 	span: 1 | 2 | 3 | 4
 	feature: "size" | "download" | "diskspace"
 }
