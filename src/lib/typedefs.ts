@@ -86,10 +86,7 @@ export abstract class GithubAPI {
 	abstract getFolderSizeInfo(folder_pathname: string, options?: GetFolderSizeInfo_Options): Promise<FolderSizeInfo>
 
 	/** get the bytesize of the whole repository */
-	abstract getRepoSize(): Promise<number>
-
-	/** get the bytesize of the specific branch of the repository */
-	abstract getBranchSize(): Promise<number>
+	abstract getDiskspace(): Promise<number>
 
 	abstract fetchEntriesOfFolder(folder_pathname: string, ...sub_entries: string[]): Promise<Uint8Array>
 }

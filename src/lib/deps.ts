@@ -160,7 +160,7 @@ export const config = {
 
 // - [x] TODO: add option for setting recursion folder amount
 // - [x] TODO: add option for branch selection for rest api (you'll have to use the "tree" rest api instead of "repository")
-// - [] TODO: add option feature for checking total repo size, including the ui associated with it
+// - [x] TODO: add option feature for checking total repo size, including the ui associated with it
 // - [x] TODO: add option toggling which ui elements/buttons get injected onto the page
 // - [] TODO: implement downloading files feature. you will also need to add a separate control for the amount of permitted recursions
 // - [] TODO: develop a ".tar" file encoder and decoder
@@ -169,9 +169,15 @@ export const config = {
 // - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun
 // - [] TODO: add option to choose whether to strictly adhere to REST api in incognito mode, along with no authentication key
 // - [x] TODO: ISSUE: folders with only one subfolder (and no files) are previewed as "folder/subfolder" in the github table-view ui.
-//            as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
-//            where as the folder sizes has it stored as the key "folder".
-//            potential fix: make table rows be identifiable by the name string before any slashes ("/")
+//             as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
+//             where as the folder sizes has it stored as the key "folder".
+//             potential fix: make table rows be identifiable by the name string before any slashes ("/")
 // - [] TODO: create a build process for generating bookmarkletes that function in the same way as the extension, with predefined `config` overrides/mutations
 // - [x] TODO: reject github tokens of incorrect length, and inform the user
-// - [] TODO: in the `options.html` page, use one save button to save everything. the button must be at the top of the page
+// - [x] TODO: in the `options.html` page, use one save button to save everything. the button must be at the top of the page
+// - [] TODO: add `readme.md` page. add "how to get token" section in the readme page
+// - [] TODO: export this TODO list to  github issues, along with a link to the commit where each issue was resolved
+// - [] TODO: your storage api and technique might be a bit finicky, and also feels like a black box when it comes to handling first-time assignments/empty storage entries.
+//            you need to setup a default-value system and link it to the "reset" button in the `options.html` page.
+//            also make the storage system compatible with: a) local website storage b) temporary map/object storage , so that it can work accross different environments, including bookmarklets
+// - [] TODO: publish to extension stores

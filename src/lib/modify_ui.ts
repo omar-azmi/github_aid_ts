@@ -50,43 +50,25 @@ const injectButtonInTableRow = (button_text: string = "", cell_id: string = "", 
 	return button_dom
 }
 
-export const injectSizeButton = (row_number?: number, column_span?: number): boolean => {
+export const injectSizeButton = (row_number?: number, column_span?: number) => {
 	const
 		feature_name: keyof typeof config["features"] = "size",
-		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
-	if (!already_exists) {
-		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
-		button_dom.onclick = debounceAndShare(1000, previewSizes)
-		return true
-	}
-	return false
+		button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
+	button_dom.onclick = debounceAndShare(1000, previewSizes)
 }
 
-export const injectDownloadButton = (row_number?: number, column_span?: number): boolean => {
+export const injectDownloadButton = (row_number?: number, column_span?: number) => {
 	const
 		feature_name: keyof typeof config["features"] = "download",
-		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
-	if (!already_exists) {
-		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
-		// button_dom.onclick = TODO
-		return true
-	}
-	return false
+		button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
+	// button_dom.onclick = TODO
 }
 
-export const injectDiskspaceButton = (row_number?: number, column_span?: number): boolean => {
-	// TODO: show total repo size. however, I would first like to uncouple how the total repo size get fetched along with the subdir's content's sizes.
-	// these two should be processes, rather than one. i.e.: `getRepoSizeInfo` should be exclusive to total repo size, and a new `getSubdirSizeInfo` function should handle subdirs instead.
-	// it would suck to call `getRepoSizeInfo` twice, only to discard half of the info each time.
+export const injectDiskspaceButton = (row_number?: number, column_span?: number) => {
 	const
 		feature_name: keyof typeof config["features"] = "diskspace",
-		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
-	if (!already_exists) {
-		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
-		// button_dom.onclick = TODO
-		return true
-	}
-	return false
+		button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
+	button_dom.onclick = () => { previewDiskspace(button_dom) }
 }
 
 class DirectoryEntry {
@@ -150,4 +132,15 @@ export const previewSizes = async () => {
 	if (header_cell_dom) {
 		header_cell_dom.innerText = "Size"
 	}
+}
+
+export const previewDiskspace = async (text_element: HTMLElement) => {
+	const
+		url = getCurrentURL(),
+		github_auth_token = await storage.get("githubToken"),
+		api_caller = (await storage.get("apiMethod")) === "graphql" ?
+			new GraphQLAPI(url, github_auth_token ?? "") :
+			new RestAPI(url, github_auth_token),
+		total_bytesize = await api_caller.getDiskspace()
+	text_element.innerText = total_bytesize !== undefined ? humanReadableBytesize(total_bytesize) : "failed"
 }

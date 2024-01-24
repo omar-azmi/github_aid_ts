@@ -25,7 +25,7 @@ const reserved_fullpaths = new Set([
 	"pulse", "graphs", "community", "network", "forks", "activity", "stargazers", "watchers", "blob", "edit",
 ])
 
-const runMain = (async () => {
+const runMain = async () => {
 	const
 		{ parseRepoEntryPath, getCurrentURL } = await import("../lib/typedefs.ts"),
 		{ injectDiskspaceButton, injectDownloadButton, injectSizeButton } = await import("../lib/modify_ui.ts"),
@@ -61,6 +61,9 @@ const runMain = (async () => {
 		}
 	}
 
-	navigation.addEventListener("navigatesuccess ", () => dom_setTimeout(onPageReload, 500))
+	navigation.addEventListener("navigatesuccess ", () => dom_setTimeout(onPageReload, 300))
 	await onPageReload()
-})()
+}
+
+// all content_scripts are loaded after the `DOMContentLoaded` event. therefore, we should run the script at top level
+runMain()
