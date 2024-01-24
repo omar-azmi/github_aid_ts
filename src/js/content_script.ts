@@ -8,7 +8,7 @@
  * which is basically saying: javacript within "<all_urls>" in this extension can load the resource url_pattern "*.js" (all javascript files).
 */
 // import { getCurrentURL, parseRepoEntryPath } from "../lib/typedefs.ts"
-// import { injectDownloadButton, injectSizeButton } from "../lib/modify_ui.ts"
+// import { injectDiskspaceButton, injectDownloadButton, injectSizeButton } from "../lib/modify_ui.ts"
 
 declare global {
 	const navigation: Navigation
@@ -25,12 +25,13 @@ const reserved_fullpaths = new Set([
 	"pulse", "graphs", "community", "network", "forks", "activity", "stargazers", "watchers", "blob", "edit",
 ])
 
-const run_content_script = (async () => {
+const runMain = (async () => {
 	const
 		{ parseRepoEntryPath, getCurrentURL } = await import("../lib/typedefs.ts"),
-		{ injectDownloadButton, injectSizeButton } = await import("../lib/modify_ui.ts")
+		{ injectDiskspaceButton, injectDownloadButton, injectSizeButton } = await import("../lib/modify_ui.ts"),
+		{ dom_setTimeout, storage } = await import("../lib/deps.ts")
 
-	const onPageReload = () => {
+	const onPageReload = async () => {
 		const repo_path = parseRepoEntryPath(getCurrentURL())
 		if (
 			repo_path &&
@@ -38,11 +39,28 @@ const run_content_script = (async () => {
 			!reserved_repos.has(repo_path.repo) &&
 			!reserved_fullpaths.has(repo_path.fullpath?.split("/")[0])
 		) {
-			injectDownloadButton()
-			injectSizeButton()
+			const layout = await storage.get("layout")
+			layout.forEach((layout_row, row_number) => {
+				layout_row?.forEach((layout_cell, column_number) => {
+					const { feature, span } = layout_cell ?? {}
+					switch (feature) {
+						case "size": {
+							injectSizeButton(row_number, span)
+							break
+						} case "download": {
+							injectDownloadButton(row_number, span)
+							break
+						} case "diskspace": {
+							injectDiskspaceButton(row_number, span)
+							break
+						}
+						default: { break }
+					}
+				})
+			})
 		}
 	}
 
-	navigation.addEventListener("navigate", onPageReload)
-	onPageReload()
+	navigation.addEventListener("navigatesuccess ", () => dom_setTimeout(onPageReload, 500))
+	await onPageReload()
 })()

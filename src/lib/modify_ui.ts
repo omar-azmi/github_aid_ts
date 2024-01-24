@@ -1,4 +1,4 @@
-import { debounceAndShare, humanReadableBytesize, memorize, storage } from "./deps.ts"
+import { debounceAndShare, humanReadableBytesize, memorize, storage, config } from "./deps.ts"
 import { GraphQLAPI } from "./gh_graphql_api.ts"
 import { RestAPI } from "./gh_rest_api.ts"
 import { getCurrentURL } from "./typedefs.ts"
@@ -7,46 +7,82 @@ export const getDirectoryTableDOM = memorize((): HTMLTableElement => {
 	return document.querySelector("#folders-and-files + table") as HTMLTableElement
 }) as (() => HTMLTableElement)
 
+const injected_cell_id_prefix = "github-aid_"
 export const siteIsRepoHomepage = (): boolean => {
-	return getDirectoryTableDOM().querySelector("tbody")?.firstElementChild?.id?.startsWith("folder-row-") ? false : true
+	const first_visible_row = getDirectoryTableDOM().querySelector("tbody")?.firstElementChild
+	return first_visible_row?.id?.startsWith("folder-row-") ?
+		false :
+		first_visible_row?.querySelector(`td[id ^= "${injected_cell_id_prefix}" i]`) ?
+			false :
+			true
 }
 
-export const addHomepageSizeButton = (): boolean => {
-	// TODO: show total repo size. however, I would first like to uncouple how the total repo size get fetched along with the subdir's content's sizes.
-	// these two should be processes, rather than one. i.e.: `getRepoSizeInfo` should be exclusive to total repo size, and a new `getSubdirSizeInfo` function should handle subdirs instead.
-	// it would suck to call `getRepoSizeInfo` twice, only to discard half of the info each time.
-	throw Error()
-}
-
-const injectButtonInTopRow = (button_text: string = "", row_id: string = "github_aid"): HTMLButtonElement => {
+let rows_injected = 0
+const injectButtonInTableRow = (button_text: string = "", cell_id: string = "", row_number = 0, column_span = 3): HTMLButtonElement => {
 	const
 		table_body = getDirectoryTableDOM().querySelector("tbody")!,
-		row_dom = document.createElement("tr"),
+		// row_dom = document.createElement("tr"),
 		cell_dom = document.createElement("td"),
 		button_dom = document.createElement("button")
-	row_dom.id = row_id
+	let row_dom: HTMLTableRowElement
+	if (rows_injected <= row_number) {
+		// we need to create a new row, since currently no injected row of the designated `row_number` has been added yet
+		// our operation of this function relies on being called in a sequence of incrementing max `row_number`.
+		// skipping in between values will result in incorrect row placements. here are examples of correct usage vs incorrect (`fn` = this function)
+		// correct: `fn(0); fn(1); fn(0); fn(2); fn(0); fn(2); fn(1)`, incorrect: `fn(0); fn(2) /* you skipped 1 */; fn(3); fn(0); fn(5) /* you skipped 4 */`
+		row_dom = document.createElement("tr")
+		// in the repo's homepage (where the readme is displayed), the top row is occupied by the "last commit" info along with total commits
+		// because we wish to put our row under it, we increment `row_number` by one if we're currently at the homepage
+		row_number += siteIsRepoHomepage() ? 1 : 0
+		table_body.insertBefore(row_dom, table_body.children[row_number])
+		rows_injected++
+	} else {
+		// an inject row already exists where the new cell's placement has been requested. we'll simply load that into `row_dom`
+		// see comment above (in the "if true" block) that explains why `row_number` needs to be incremented in the homepage.
+		row_number += siteIsRepoHomepage() ? 1 : 0
+		row_dom = table_body.rows[row_number]
+	}
+	cell_dom.id = injected_cell_id_prefix + cell_id
 	button_dom.innerHTML = button_text
-	button_dom.setAttribute("style", "width: 100%;")
-	cell_dom.setAttribute("colspan", "3")
+	button_dom.setAttribute("style", "width: 100%; height: 2em;")
+	cell_dom.setAttribute("colspan", column_span.toString())
 	row_dom.appendChild(cell_dom).appendChild(button_dom)
-	table_body.insertBefore(row_dom, table_body.children[siteIsRepoHomepage() ? 1 : 0])
 	return button_dom
 }
 
-export const injectSizeButton = (): boolean => {
-	const already_exists = getDirectoryTableDOM().querySelector("tbody > #github_aid_size") ? true : false
+export const injectSizeButton = (row_number?: number, column_span?: number): boolean => {
+	const
+		feature_name: keyof typeof config["features"] = "size",
+		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
 	if (!already_exists) {
-		const button_dom = injectButtonInTopRow("get content sizes", "github_aid_size")
+		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
 		button_dom.onclick = debounceAndShare(1000, previewSizes)
 		return true
 	}
 	return false
 }
 
-export const injectDownloadButton = (): boolean => {
-	const already_exists = getDirectoryTableDOM().querySelector("tbody > #github_aid_download") ? true : false
+export const injectDownloadButton = (row_number?: number, column_span?: number): boolean => {
+	const
+		feature_name: keyof typeof config["features"] = "download",
+		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
 	if (!already_exists) {
-		const button_dom = injectButtonInTopRow("toggle download selected", "github_aid_download")
+		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
+		// button_dom.onclick = TODO
+		return true
+	}
+	return false
+}
+
+export const injectDiskspaceButton = (row_number?: number, column_span?: number): boolean => {
+	// TODO: show total repo size. however, I would first like to uncouple how the total repo size get fetched along with the subdir's content's sizes.
+	// these two should be processes, rather than one. i.e.: `getRepoSizeInfo` should be exclusive to total repo size, and a new `getSubdirSizeInfo` function should handle subdirs instead.
+	// it would suck to call `getRepoSizeInfo` twice, only to discard half of the info each time.
+	const
+		feature_name: keyof typeof config["features"] = "diskspace",
+		already_exists = getDirectoryTableDOM().querySelector(`tbody > tr > td #${injected_cell_id_prefix}${feature_name}`) ? true : false
+	if (!already_exists) {
+		const button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
 		// button_dom.onclick = TODO
 		return true
 	}
@@ -82,7 +118,7 @@ class DirectoryEntry {
 
 	static parseCurrentPage(): Map<string, DirectoryEntry> {
 		const
-			rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll("tbody > tr[id ^= \"folder-row-\" i]") as any,
+			rows: Iterable<HTMLTableRowElement> = getDirectoryTableDOM().querySelectorAll(`tbody > tr[id ^= "folder-row-" i]`) as any,
 			entries_arr: DirectoryEntry[] = [...rows].map((elem) => new DirectoryEntry(elem)),
 			entries = new Map<string, DirectoryEntry>(entries_arr.map((entry) => [entry.name, entry]))
 		return entries
@@ -110,7 +146,7 @@ export const previewSizes = async () => {
 		entries.get(size_entry.name)?.setSize(size_entry.size)
 	})
 	// finally, change the table header's "Last commit date" cell to read "Size"
-	const header_cell_dom = getDirectoryTableDOM().querySelector("thead > tr > th > div[title ^= \"last commit date\" i]") as (HTMLDivElement | null)
+	const header_cell_dom = getDirectoryTableDOM().querySelector(`thead > tr > th > div[title ^= "last commit date" i]`) as (HTMLDivElement | null)
 	if (header_cell_dom) {
 		header_cell_dom.innerText = "Size"
 	}

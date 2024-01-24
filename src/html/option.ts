@@ -1,4 +1,4 @@
-import { StorageSchema, clamp, layoutCellConfig, storage } from "../lib/deps.ts"
+import { StorageSchema, clamp, dom_setTimeout, layoutCellConfig, storage } from "../lib/deps.ts"
 
 type SaveElementToStorageFunction<E extends HTMLElement> = (element: E) => Promise<void>
 type LoadStorageToElementFunction<E extends HTMLElement> = (element: E) => Promise<void>
@@ -9,10 +9,35 @@ type SaveAndLoadStorage<SCHEMA> = {
 	}
 }
 
+const verify_correctness_of_github_auth_token = (github_auth_token: string, elem?: HTMLInputElement & { id: "#token" }): boolean => {
+	const github_auth_token_len = github_auth_token.length
+	const create_notification = (text: string, color: string, time_out = 2000) => {
+		const notification_text_dom = document.createElement("span")
+		notification_text_dom.setAttribute("style", `display: block; background-color: ${color};`)
+		notification_text_dom.innerText = text
+		dom_setTimeout(() => { notification_text_dom.remove() }, time_out)
+		elem!.insertAdjacentElement("afterend", notification_text_dom)
+	}
+	if (github_auth_token_len <= 0) {
+		console.log("github access token has been delete")
+		if (elem) { create_notification("github access token deleted", "cornflowerblue") }
+	} else if (github_auth_token_len !== 40) {
+		console.log("github access token must be exactly", 40, "characters in length", "\n\tthe provided one has a length of:", github_auth_token_len)
+		if (elem) { create_notification("token must be 40 characters long", "coral") }
+		return false
+	}
+	return true
+}
+
 const save_and_load_storage: SaveAndLoadStorage<Required<StorageSchema>> = {
 	githubToken: {
 		load: async (elem: HTMLInputElement & { id: "#token" }) => { elem.value = (await storage.get("githubToken")) ?? "" },
-		save: async (elem: HTMLInputElement & { id: "#token" }) => { await storage.set("githubToken", elem.value) },
+		save: async (elem: HTMLInputElement & { id: "#token" }) => {
+			const github_auth_token = elem.value.trim()
+			if (verify_correctness_of_github_auth_token(github_auth_token, elem)) {
+				await storage.set("githubToken", github_auth_token.length <= 0 ? undefined : github_auth_token)
+			}
+		},
 	},
 	recursionLimit: {
 		load: async (elem: HTMLInputElement & { id: "#recursion_limit" }) => { elem.value = ((await storage.get("recursionLimit")) ?? 1).toString() },
@@ -57,7 +82,6 @@ const save_and_load_storage: SaveAndLoadStorage<Required<StorageSchema>> = {
 	<option value="1">1</option>
 	<option value="2">2</option>
 	<option value="3">3</option>
-	<option value="4">4</option>
 </select>`.trim()
 				return span_dom
 			}
