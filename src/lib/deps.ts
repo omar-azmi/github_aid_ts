@@ -1,10 +1,11 @@
 /// <reference types="npm:web-ext-types" />
 
-export { array_isArray, dom_setTimeout, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+export { array_isArray, array_isEmpty, dom_setTimeout, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
 export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
+export const number_isFinite = Number.isFinite
 
-import { array_isEmpty, object_entries, object_fromEntries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+import { array_isEmpty, dom_setTimeout, object_entries, object_fromEntries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
 
@@ -96,6 +97,16 @@ export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, nu
 	}
 }
 
+export const modifyElementStyleTemporarily = (elem: HTMLElement, duration_ms: number, prepend_style = "", append_style = ""): number => {
+	const
+		original_style = elem.getAttribute("style") ?? "",
+		modified_style = prepend_style + original_style + append_style
+	elem.setAttribute("style", modified_style)
+	return dom_setTimeout(() => {
+		elem.setAttribute("style", original_style)
+	}, duration_ms)
+}
+
 const
 	null_entries_to_undefined = <T>(obj: T): { [K in keyof T]: T[K] extends null ? undefined : T[K] } => {
 		for (const key in obj) {
@@ -113,25 +124,6 @@ const
 		}
 		return obj as any
 	}
-
-
-// TODO: add this utility type to `kitchensink_ts`
-/** map each entry (key-value pair) of an object, to a tuple of the key and its corresponding value. <br>
- * the output of this type is what the builtin `Object.entries` static method should ideally return if it were typed strictly.
- * 
- * @example
- * ```ts
- * const obj = { kill: "your", self: "ok", tomorrow: 420 } as const
- * type EntriesOfObj = EntriesOf<typeof b>
- * // the IDE will now infer the type to be:
- * // `type EntriesOfObj = Array<["kill", "your"] | ["self", "ok"] | ["tomorrow", 420]>`
- * // had we not used the `as const` narrowing utility, the output would've then been:
- * // `type EntriesOfObj = Array<["kill", string] | ["self", string] | ["tomorrow", number]>`
- * ```
-*/
-type EntriesOf<T> = {
-	[K in keyof T]: [key: K, value: T[K]]
-}[keyof T][]
 
 
 abstract class SomeStorage<SCHEMA extends Record<string, any>> {
@@ -317,34 +309,6 @@ class MapStorage<SCHEMA extends Record<string, any>> extends SomeStorage<SCHEMA>
 	}
 	async clear(): Promise<void> { this.storage.clear() }
 }
-
-
-/** a unified non-failing way of storing simple json style key value pairs in either (ordered by priority):
- * - your local storage (see [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API))
- * - a temporary `Map` object, which will be valid throughout the lifetime of your script
-class SimpleStorage<SCHEMA> {
-	private temp: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]> = new Map()
-
-	async get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]> {
-		const browser = getBrowser()
-		if (browser) {
-			return (await browser.storage.sync.get(key as any) as SCHEMA)[key]
-		}
-		return this.temp.get(key) as SCHEMA[K]
-	}
-
-	async set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void> {
-		const browser = getBrowser()
-		if (browser) {
-			await browser.storage.sync.set({
-				[key]: value as any
-			})
-		} else {
-			this.temp.set(key, value)
-		}
-	}
-}
-*/
 
 type Features = "size" | "diskspace" | "download"
 export interface layoutCellConfig {

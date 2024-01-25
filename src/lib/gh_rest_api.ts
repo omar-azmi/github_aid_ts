@@ -1,4 +1,4 @@
-import { array_isArray, config, object_entries, removeLeadingSlash } from "./deps.ts"
+import { array_isArray, config, number_isFinite, object_entries, removeLeadingSlash } from "./deps.ts"
 import { FolderSizeInfo, GetFolderSizeInfo_Options, GithubAPI } from "./typedefs.ts"
 
 interface RestTreeResponse {
@@ -68,10 +68,15 @@ export class RestAPI extends GithubAPI {
 		const
 			{ owner, repo } = this.repo,
 			reqest_header_auth: { authorization: string } | {} = this.auth ? { "authorization": `bearer ${this.auth}` } : {},
-			repo_info = await (await fetch(config.api.rest + `/${owner}/${repo}`, {
-				method: "GET",
-				headers: reqest_header_auth
-			})).json()
+			repo_info = await (
+				await fetch(config.api.rest + `/${owner}/${repo}`, {
+					method: "GET",
+					headers: reqest_header_auth
+				}).then((response) => { return response.ok ? response : new Response("{}") })
+			).json()
+		if (!number_isFinite(repo_info.size)) {
+			throw Error("failed to fetch the repository's size in the correct format.\n\tfetched response was: " + repo_info)
+		}
 		return repo_info.size * 1024 // `repo.size` is actually in kilobytes instead of bytes, so we need to convert it to bytes
 	}
 

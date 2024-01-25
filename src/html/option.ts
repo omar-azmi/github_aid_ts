@@ -1,4 +1,4 @@
-import { StorageSchema, clamp, dom_setTimeout, layoutCellConfig, storage } from "../lib/deps.ts"
+import { StorageSchema, array_isEmpty, clamp, dom_setTimeout, layoutCellConfig, storage } from "../lib/deps.ts"
 
 type SaveElementToStorageFunction<E extends HTMLElement> = (element: E) => Promise<void>
 type LoadStorageToElementFunction<E extends HTMLElement> = (element: E) => Promise<void>
@@ -35,12 +35,12 @@ const save_and_load_storage: SaveAndLoadStorage<Required<StorageSchema>> = {
 		save: async (elem: HTMLInputElement & { id: "#token" }) => {
 			const github_auth_token = elem.value.trim()
 			if (verify_correctness_of_github_auth_token(github_auth_token, elem)) {
-				await storage.set("githubToken", github_auth_token.length <= 0 ? undefined : github_auth_token)
+				await storage.set("githubToken", array_isEmpty(github_auth_token) ? undefined : github_auth_token)
 			}
 		},
 	},
 	recursionLimit: {
-		load: async (elem: HTMLInputElement & { id: "#recursion_limit" }) => { elem.value = ((await storage.get("recursionLimit")) ?? 1).toString() },
+		load: async (elem: HTMLInputElement & { id: "#recursion_limit" }) => { elem.value = (await storage.get("recursionLimit")).toString() },
 		save: async (elem: HTMLInputElement & { id: "#recursion_limit" }) => {
 			const value = clamp<number>(Number(elem.value) | 0, 1, 16)
 			await storage.set("recursionLimit", value)
@@ -85,7 +85,7 @@ const save_and_load_storage: SaveAndLoadStorage<Required<StorageSchema>> = {
 </select>`.trim()
 				return span_dom
 			}
-			const layout = (await storage.get("layout")) ?? []
+			const layout = await storage.get("layout")
 			for (let row = 0; row < 3; row++) {
 				for (let col = 0; col < 3; col++) {
 					const
@@ -134,25 +134,35 @@ const save_and_load_storage: SaveAndLoadStorage<Required<StorageSchema>> = {
 
 const runMain = async () => {
 	const
-		storage_save_dom = document.querySelector("#storage_save") as HTMLButtonElement,
-		storage_load_dom = document.querySelector("#storage_load") as HTMLButtonElement,
 		storage_reset_dom = document.querySelector("#storage_reset") as HTMLButtonElement,
+		storage_load_dom = document.querySelector("#storage_load") as HTMLButtonElement,
+		storage_save_dom = document.querySelector("#storage_save") as HTMLButtonElement,
 		input_token_dom = document.querySelector("#token") as HTMLInputElement,
 		input_recursion_limit_dom = document.querySelector("#recursion_limit") as HTMLDivElement,
 		api_mode_dom = document.querySelector("#api_mode") as HTMLInputElement,
 		layout_setup_dom = document.querySelector("#layout_setup") as HTMLDivElement,
-		on_load = () => {
-			save_and_load_storage.githubToken.load(input_token_dom)
-			save_and_load_storage.recursionLimit.load(input_recursion_limit_dom)
-			save_and_load_storage.apiMethod.load(api_mode_dom)
-			save_and_load_storage.layout.load(layout_setup_dom)
+		on_reset = async () => {
+			await storage.clear()
+			await on_load()
 		},
-		on_save = () => {
-			save_and_load_storage.githubToken.save(input_token_dom)
-			save_and_load_storage.recursionLimit.save(input_recursion_limit_dom)
-			save_and_load_storage.apiMethod.save(api_mode_dom)
-			save_and_load_storage.layout.save(layout_setup_dom)
+		on_load = async () => {
+			await Promise.all([
+				save_and_load_storage.githubToken.load(input_token_dom),
+				save_and_load_storage.recursionLimit.load(input_recursion_limit_dom),
+				save_and_load_storage.apiMethod.load(api_mode_dom),
+				save_and_load_storage.layout.load(layout_setup_dom),
+			])
+		},
+		on_save = async () => {
+			await Promise.all([
+				save_and_load_storage.githubToken.save(input_token_dom),
+				save_and_load_storage.recursionLimit.save(input_recursion_limit_dom),
+				save_and_load_storage.apiMethod.save(api_mode_dom),
+				save_and_load_storage.layout.save(layout_setup_dom),
+			])
+			await on_load()
 		}
+	storage_reset_dom.onclick = on_reset
 	storage_load_dom.onclick = on_load
 	storage_save_dom.onclick = on_save
 	on_load()

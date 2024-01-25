@@ -1,7 +1,7 @@
-import { debounceAndShare, humanReadableBytesize, memorize, storage, config } from "./deps.ts"
+import { config, debounceAndShare, humanReadableBytesize, memorize, modifyElementStyleTemporarily, number_isFinite, storage } from "./deps.ts"
 import { GraphQLAPI } from "./gh_graphql_api.ts"
 import { RestAPI } from "./gh_rest_api.ts"
-import { getCurrentURL } from "./typedefs.ts"
+import { FolderSizeInfo, getCurrentURL } from "./typedefs.ts"
 
 export const getDirectoryTableDOM = memorize((): HTMLTableElement => {
 	return document.querySelector("#folders-and-files + table") as HTMLTableElement
@@ -107,7 +107,7 @@ class DirectoryEntry {
 	}
 }
 
-export const previewSizes = async () => {
+export const previewSizes = async (event: MouseEvent) => {
 	const
 		entries = DirectoryEntry.parseCurrentPage(),
 		url = getCurrentURL(),
@@ -120,11 +120,18 @@ export const previewSizes = async () => {
 	if (folder_pathname === undefined) {
 		throw Error("failed to parse the folder_pathname from current url")
 	}
-	const
+	let folder_size_info: FolderSizeInfo | undefined
+	// fetching might occasionally fail, so we need to add an error catch block for that
+	try {
 		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursion: recursion_depth })
+	} catch (error) {
+		// turn the "size" button red in order to indicate a faliure while fetching
+		modifyElementStyleTemporarily(event.target as HTMLButtonElement, 500, "background-color: red;")
+		console.log(error)
+	}
 	// for each retrieved file info, find the DOM table row associated with that file name (if it exists),
 	// and then change the text of the "last commit date" to the file size
-	folder_size_info.forEach((size_entry) => {
+	folder_size_info?.forEach((size_entry) => {
 		entries.get(size_entry.name)?.setSize(size_entry.size)
 	})
 	// finally, change the table header's "Last commit date" cell to read "Size"
@@ -140,7 +147,15 @@ export const previewDiskspace = async (text_element: HTMLElement) => {
 		github_auth_token = await storage.get("githubToken"),
 		api_caller = (await storage.get("apiMethod")) === "graphql" ?
 			new GraphQLAPI(url, github_auth_token ?? "") :
-			new RestAPI(url, github_auth_token),
+			new RestAPI(url, github_auth_token)
+	let total_bytesize: number | undefined
+	// fetching might occasionally fail, so we need to add an error catch block for that
+	try {
 		total_bytesize = await api_caller.getDiskspace()
-	text_element.innerText = total_bytesize !== undefined ? humanReadableBytesize(total_bytesize) : "failed"
+	} catch (error) {
+		// turn the "download" button red in order to indicate a faliure while fetching
+		modifyElementStyleTemporarily(text_element, 500, "background-color: red;")
+		console.log(error)
+	}
+	text_element.innerText = number_isFinite(total_bytesize) ? humanReadableBytesize(total_bytesize!) : "failed"
 }
