@@ -13,7 +13,11 @@ const
 // define the source and destination directories
 const
 	src_dir = "./src/",
-	dst_dir = `./dist/${deno_json.name ?? ""}-v${deno_json.version ?? "0.0.0"}/`
+	dst_dir = `./dist/${deno_json.name ?? ""}-v${deno_json.version ?? "0.0.0"}/`,
+	// additionl files to copy over to the `dst_dir`
+	additional_files: Array<[source_path: string, destination_relative_path: string]> = [
+		["./license.md", "./license.md"],
+	]
 
 const buildManifestJson = (base_manifest_obj: { [key: string]: any }) => {
 	const
@@ -36,10 +40,20 @@ for await (const { path } of walkDir(src_dir, { includeDirs: false })) {
 	if (!log_only) {
 		await ensureFile(dst_path)
 		if (path.endsWith("manifest.json")) {
+			// before copying `manifest.json`, merge some of the fields from `deno.json` into it, and delete some other fields
 			const manifest_obj = buildManifestJson(JSON.parse(await Deno.readTextFile(path)))
 			await Deno.writeTextFile(dst_path, JSON.stringify(manifest_obj))
 		} else {
 			await Deno.copyFile(path, dst_path)
 		}
+	}
+}
+
+for (const [path, dst_relpath] of additional_files) {
+	const dst_path = pathJoin(dst_dir, dst_relpath)
+	console.log(`copying ${path} to ${dst_path}`)
+	if (!log_only) {
+		await ensureFile(dst_path)
+		await Deno.copyFile(path, dst_path)
 	}
 }
