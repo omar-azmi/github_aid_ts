@@ -1,10 +1,10 @@
 /// <reference types="npm:web-ext-types" />
 
-export { array_isArray, object_entries, dom_setTimeout } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+export { array_isArray, dom_setTimeout, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
 export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
-import { array_isEmpty } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
+import { array_isEmpty, object_entries, object_fromEntries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
 import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
 
 
@@ -16,6 +16,9 @@ export const getBrowser = () => {
 			chrome :
 			undefined
 	return possible_browser?.runtime ? possible_browser : undefined
+}
+export const getLocalStorage = () => {
+	return window?.localStorage ?? undefined
 }
 
 const math_random = Math.random
@@ -93,10 +96,232 @@ export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, nu
 	}
 }
 
+const
+	null_entries_to_undefined = <T>(obj: T): { [K in keyof T]: T[K] extends null ? undefined : T[K] } => {
+		for (const key in obj) {
+			if (obj[key] === null) {
+				obj[key] = undefined as any
+			}
+		}
+		return obj as any
+	},
+	undefined_entries_to_null = <T>(obj: T): { [K in keyof T]: T[K] extends undefined ? null : T[K] } => {
+		for (const key in obj) {
+			if (obj[key] === undefined) {
+				obj[key] = null as any
+			}
+		}
+		return obj as any
+	}
+
+
+// TODO: add this utility type to `kitchensink_ts`
+/** map each entry (key-value pair) of an object, to a tuple of the key and its corresponding value. <br>
+ * the output of this type is what the builtin `Object.entries` static method should ideally return if it were typed strictly.
+ * 
+ * @example
+ * ```ts
+ * const obj = { kill: "your", self: "ok", tomorrow: 420 } as const
+ * type EntriesOfObj = EntriesOf<typeof b>
+ * // the IDE will now infer the type to be:
+ * // `type EntriesOfObj = Array<["kill", "your"] | ["self", "ok"] | ["tomorrow", 420]>`
+ * // had we not used the `as const` narrowing utility, the output would've then been:
+ * // `type EntriesOfObj = Array<["kill", string] | ["self", string] | ["tomorrow", number]>`
+ * ```
+*/
+type EntriesOf<T> = {
+	[K in keyof T]: [key: K, value: T[K]]
+}[keyof T][]
+
+
+abstract class SomeStorage<SCHEMA extends Record<string, any>> {
+	/** specify if the storage is available */
+	available: boolean = false
+
+	constructor(default_values?: SCHEMA) { }
+
+	/** specify the default values of each entry of the storage */
+	abstract readonly default: SCHEMA
+
+	/** get a key's value. if the key hasn't been set yet, you'll receive the default value */
+	abstract get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]>
+
+	/** set a key's value. as a consequence, {@link has} will now return `true` */
+	abstract set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void>
+
+	/** delete a key (and go back to default value). as a consequence, {@link has} will now return a `false` after the deletion */
+	abstract del<K extends keyof SCHEMA>(key: K): Promise<void>
+
+	/** has the `key` ever been written to? or is it still untampered? */
+	abstract has<K extends keyof SCHEMA>(key: K): Promise<boolean>
+
+	abstract getBulk<K extends keyof SCHEMA>(keys: Array<K>): Promise<{ [J in K]: SCHEMA[J] }>
+	abstract setBulk<K extends keyof SCHEMA>(subset: Pick<SCHEMA, K>): Promise<void>
+	abstract delBulk<K extends keyof SCHEMA>(keys: Array<K>): Promise<void>
+
+	/** clear the entire storage (and go back to default values as a consequence) */
+	abstract clear(): Promise<void>
+
+	/** provide a list of storage classes to pick from, in the order of decreasing priority,
+	 * and this method will pick the first available one, and return an instance of it.
+	*/
+	static pickAvailableStorage<SCHEMA extends Record<string, any>>(default_values: SCHEMA, ...storage_classes: (typeof SomeStorage<SCHEMA>)[]) {
+		for (const storage_class of storage_classes) {
+			// @ts-ignore
+			const new_storage: SomeStorage<SCHEMA> = new storage_class(default_values)
+			if (new_storage.available) {
+				return new_storage
+			}
+		}
+	}
+}
+
+// the `({} | undefined)` portion in the type allows all objects and primitives, excluding the `null` type
+class BrowserStorage<SCHEMA extends Record<string, ({} | undefined)>> extends SomeStorage<SCHEMA> {
+	private storage: (typeof browser)["storage"]["sync"]
+	default: SCHEMA
+
+	constructor(default_values: SCHEMA) {
+		super()
+		this.available = (this.storage = getBrowser()?.storage?.sync as any) ? true : false
+		/** important: all `undefined` default values act destructively. meaning that they delete the storage entry.
+		 * so, when you set a certain key's default value as `undefined`, the resulting returned value by
+		 * `this.storage.get` will be deleted immediately, even it it exists in the storage.
+		 * check this example to understand what's going on:
+		 * ```ts
+		 * const storage = chrome.storage.sync
+		 * storage.set({hello: "world"})
+		 * console.assert((await storage.get({hello: "blahblah"})).hello === "world")
+		 * console.assert((await storage.get({hello: undefined})).hello === undefined)
+		 * console.assert((await storage.get({hello: null})).hello === "world")
+		 * ```
+		 * hence is the reason why we're first converting all `undefined` default values to `null`.
+		 * we'll also need to  convert all of the fetched `null` values back to `undefined` in the `get` method.
+		*/
+		const default_values_clone = { ...default_values }
+		this.default = undefined_entries_to_null(default_values_clone) as any
+	}
+
+	async get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]> {
+		const value = ((await this.storage.get({
+			[key]: this.default[key] as any
+		})) as SCHEMA)[key] as (SCHEMA[K] | null)
+		// see the note inside of the constructor to understand the importance of `null`, and the reason why we convert `null` to `undefined`
+		return (value ?? undefined) as any
+	}
+
+	async set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void> {
+		await this.setBulk({ [key]: value } as any)
+	}
+
+	async del<K extends keyof SCHEMA>(key: K): Promise<void> {
+		await this.delBulk([key])
+	}
+
+	async has<K extends keyof SCHEMA>(key: K): Promise<boolean> {
+		// here, we simply check if `this.storage.get(key)[key] === undefined`,
+		// because, if that key had ever been set to `undefined` via our `set` method, then it would've internally converted it to `null`,
+		// and we would've actually gotten `this.storage.get(key)[key] === null` instead.
+		// but actually, it seems far more reasonable to simply check of the `key` exists in the returned storge value object via `key in (await this.storage.get(key as any))`
+		// but i don't want to do that right now, unless i encounter an issue with my current way.
+		return (await this.storage.get(key as any))[key] === undefined
+	}
+
+	async getBulk<K extends keyof SCHEMA>(keys: K[]): Promise<{ [J in K]: SCHEMA[J] }> {
+		const
+			default_values = this.default,
+			picked_default_values = object_fromEntries(keys.map((k) => ([k, default_values[k]])))
+		return null_entries_to_undefined(await this.storage.get(picked_default_values)) as any
+	}
+
+	async setBulk<K extends keyof SCHEMA>(subset: Pick<SCHEMA, K>): Promise<void> {
+		// see the note inside of the constructor to understand the importance of `null`, and the reason why we convert `undefined` to `null` in here
+		await this.storage.set(undefined_entries_to_null(subset) as any)
+	}
+
+	async delBulk<K extends keyof SCHEMA>(keys: K[]): Promise<void> {
+		await this.storage.remove(keys as any)
+	}
+
+	async clear(): Promise<void> {
+		await this.storage.clear()
+	}
+}
+
+class LocalStorage<SCHEMA extends Record<string, string>> extends SomeStorage<SCHEMA> {
+	private storage: WindowLocalStorage["localStorage"]
+	default: SCHEMA
+
+	constructor(default_values: SCHEMA) {
+		super()
+		this.available = (this.storage = getLocalStorage()) ? true : false
+		this.default = default_values
+	}
+
+	async get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]> { return (this.storage.getItem(key as string) as (SCHEMA[K] | null)) ?? this.default[key] }
+	async set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void> { this.storage.setItem(key as string, value) }
+	async del<K extends keyof SCHEMA>(key: K): Promise<void> { this.storage.removeItem(key as string) }
+	async has<K extends keyof SCHEMA>(key: K): Promise<boolean> { return this.storage.getItem(key as string) !== null }
+	async getBulk<K extends keyof SCHEMA>(keys: K[]): Promise<{ [J in K]: SCHEMA[J] }> {
+		const
+			storage = this.storage,
+			default_values = this.default
+		return object_fromEntries(keys.map((k) => (
+			[k, storage.getItem(k as string) ?? default_values[k]]
+		))) as any
+	}
+	async setBulk<K extends keyof SCHEMA>(subset: Pick<SCHEMA, K>): Promise<void> {
+		const storage = this.storage
+		for (const [key, value] of object_entries(subset as Record<string, string>)) {
+			storage.setItem(key, value)
+		}
+	}
+	async delBulk<K extends keyof SCHEMA>(keys: K[]): Promise<void> {
+		const storage = this.storage
+		keys.forEach((key) => storage.removeItem(key as string))
+	}
+	async clear(): Promise<void> { this.storage.clear() }
+}
+
+class MapStorage<SCHEMA extends Record<string, any>> extends SomeStorage<SCHEMA> {
+	private storage: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]>
+	default: SCHEMA
+
+	constructor(default_values: SCHEMA) {
+		super()
+		this.available = (this.storage = new Map()) ? true : false
+		this.default = default_values
+	}
+
+	async get<K extends keyof SCHEMA>(key: K): Promise<SCHEMA[K]> { return this.storage.get(key) ?? this.default[key] }
+	async set<K extends keyof SCHEMA>(key: K, value: SCHEMA[K]): Promise<void> { this.storage.set(key, value) }
+	async del<K extends keyof SCHEMA>(key: K): Promise<void> { this.storage.delete(key) }
+	async has<K extends keyof SCHEMA>(key: K): Promise<boolean> { return this.storage.has(key) }
+	async getBulk<K extends keyof SCHEMA>(keys: K[]): Promise<{ [J in K]: SCHEMA[J] }> {
+		const
+			storage = this.storage,
+			default_values = this.default
+		return object_fromEntries(keys.map((k) => (
+			[k, storage.get(k) ?? default_values[k]]
+		))) as any
+	}
+	async setBulk<K extends keyof SCHEMA>(subset: Pick<SCHEMA, K>): Promise<void> {
+		const storage = this.storage
+		for (const [key, value] of object_entries(subset)) {
+			storage.set(key, value as SCHEMA[K])
+		}
+	}
+	async delBulk<K extends keyof SCHEMA>(keys: K[]): Promise<void> {
+		const storage = this.storage
+		keys.forEach((key) => storage.delete(key))
+	}
+	async clear(): Promise<void> { this.storage.clear() }
+}
+
+
 /** a unified non-failing way of storing simple json style key value pairs in either (ordered by priority):
  * - your local storage (see [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API))
  * - a temporary `Map` object, which will be valid throughout the lifetime of your script
-*/
 class SimpleStorage<SCHEMA> {
 	private temp: Map<keyof SCHEMA, SCHEMA[keyof SCHEMA]> = new Map()
 
@@ -119,24 +344,24 @@ class SimpleStorage<SCHEMA> {
 		}
 	}
 }
+*/
 
+type Features = "size" | "diskspace" | "download"
 export interface layoutCellConfig {
 	span: 1 | 2 | 3
-	feature: keyof typeof config["features"]
+	feature: Features
 }
 
 export interface StorageSchema {
-	githubToken?: string
-	apiMethod?: "rest" | "graphql"
-	recursionLimit?: number
+	githubToken?: string | undefined
+	apiMethod: "rest" | "graphql"
+	recursionLimit: number
 	layout: [
 		row0?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
 		row1?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
 		row2?: [column0: layoutCellConfig, column1?: layoutCellConfig, column2?: layoutCellConfig],
 	]
 }
-
-export const storage = new SimpleStorage<StorageSchema>()
 
 /** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
 const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
@@ -155,29 +380,15 @@ export const config = {
 		"size": { buttonText: "sizes" },
 		"diskspace": { buttonText: "diskspace" },
 		"download": { buttonText: "download" },
-	}
+	} as Record<Features, { buttonText: string }>,
+	storageDefaults: {
+		githubToken: undefined,
+		apiMethod: "rest",
+		recursionLimit: 7,
+		layout: [
+			[{ feature: "download", span: 1 }, { feature: "diskspace", span: 1 }, { feature: "size", span: 1 }],
+		],
+	} as StorageSchema
 }
 
-// - [x] TODO: add option for setting recursion folder amount
-// - [x] TODO: add option for branch selection for rest api (you'll have to use the "tree" rest api instead of "repository")
-// - [x] TODO: add option feature for checking total repo size, including the ui associated with it
-// - [x] TODO: add option toggling which ui elements/buttons get injected onto the page
-// - [] TODO: implement downloading files feature. you will also need to add a separate control for the amount of permitted recursions
-// - [] TODO: develop a ".tar" file encoder and decoder
-// - [] TODO: add ui associated with the download feature
-// - [x] TODO: fix the cropping of the `option.html` page when rendered as a popup page
-// - [] TODO: replace `eldercat.svg` with a katana wielding seppukucat with a samurail man bun
-// - [] TODO: add option to choose whether to strictly adhere to REST api in incognito mode, along with no authentication key
-// - [x] TODO: ISSUE: folders with only one subfolder (and no files) are previewed as "folder/subfolder" in the github table-view ui.
-//             as a result, I am unable to match the retrieved folder sizes with the associated table row, since the table row is identified by the name "folder/subfolder",
-//             where as the folder sizes has it stored as the key "folder".
-//             potential fix: make table rows be identifiable by the name string before any slashes ("/")
-// - [] TODO: create a build process for generating bookmarkletes that function in the same way as the extension, with predefined `config` overrides/mutations
-// - [x] TODO: reject github tokens of incorrect length, and inform the user
-// - [x] TODO: in the `options.html` page, use one save button to save everything. the button must be at the top of the page
-// - [] TODO: add `readme.md` page. add "how to get token" section in the readme page
-// - [] TODO: export this TODO list to  github issues, along with a link to the commit where each issue was resolved
-// - [] TODO: your storage api and technique might be a bit finicky, and also feels like a black box when it comes to handling first-time assignments/empty storage entries.
-//            you need to setup a default-value system and link it to the "reset" button in the `options.html` page.
-//            also make the storage system compatible with: a) local website storage b) temporary map/object storage , so that it can work accross different environments, including bookmarklets
-// - [] TODO: publish to extension stores
+export const storage = SomeStorage.pickAvailableStorage<StorageSchema>(config.storageDefaults, BrowserStorage as any, MapStorage as any)!
