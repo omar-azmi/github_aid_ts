@@ -23,7 +23,7 @@ const create_recursive_query = memorize((depth: number = 1) => {
 		repository(owner: $owner, name: $repo) {
 			name
 			object(expression: $branch_colon_path) {`
-	let botton_string_stack = `
+	let bottom_string_stack = `
 			}
 		}
 	}`
@@ -36,12 +36,12 @@ const create_recursive_query = memorize((depth: number = 1) => {
 							... on Blob {
 								byteSize
 							}`
-		botton_string_stack += `
+		bottom_string_stack += `
 						}
 					}
 				}`
 	}
-	return (top_string_stack + botton_string_stack).trim().replaceAll(/\n\t*/g, " ")
+	return (top_string_stack + bottom_string_stack).trim().replaceAll(/\n\t*/g, " ")
 })
 
 type GraphQLRepositoryDiskspaceData = { repository: { diskUsage: number } }

@@ -12,8 +12,8 @@
 /deno.d.ts
 
 # automatic file clones
-/.github/readme.md
-/license.md
+# /.github/readme.md
+# /license.md
 
 # secrets (contains API tokens for testing) 
-.env
+/.env

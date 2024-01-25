@@ -1,11 +1,6 @@
 export interface RepoPath {
 	owner: string
 	repo: string
-	/** i can't handle the different branches besides the "HEAD" when using the REST API.
-	 * i will probably want to use the the GraphQL API for that.
-	 * TODO: consider using branch-hash instead of branch-name,
-	 * and then create helper functions/methods that parse the branch-hash from either a branch-name or branch-tag, or commit-tag
-	*/
 	branch: string | "HEAD"
 }
 

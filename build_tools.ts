@@ -134,8 +134,8 @@ export const createNPMFiles = async (
 export const doubleCompileFiles = async (
 	compile_file_path: string,
 	out_dir: string,
-	overrid_bundle_options: ESBuildOptions = {},
-	overrid_minify_options: ESTransformOptions = {},
+	override_bundle_options: ESBuildOptions = {},
+	override_minify_options: ESTransformOptions = {},
 	stop: boolean = true
 ) => {
 	let t0 = performance.now(), t1: number
@@ -149,7 +149,7 @@ export const doubleCompileFiles = async (
 		format: "esm",
 		target: "esnext",
 		plugins: [...denoPlugins()],
-		...overrid_bundle_options,
+		...override_bundle_options,
 		write: false,
 	})
 
@@ -161,7 +161,7 @@ export const doubleCompileFiles = async (
 					platform: "browser",
 					format: "esm",
 					target: "esnext",
-					...overrid_minify_options
+					...override_minify_options
 				})).code,
 				js_text_uint8 = (new TextEncoder()).encode(js_text)
 			console.log("bundled file", file_number, "\n\t", "output path:", path, "\n\t", "binary size:", js_text_uint8.byteLength / 1024, "kb")
