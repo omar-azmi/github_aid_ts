@@ -7,8 +7,11 @@
  * for that, we have to specify in "manifest.json": `web_accessible_resources = [{resources: ["*.js"], matches: "<all_urls>"}]`.
  * which is basically saying: javacript within "<all_urls>" in this extension can load the resource url_pattern "*.js" (all javascript files).
 */
+
+// dynamic imports of the following are done in `runMain()`:
 // import { getCurrentURL, parseRepoEntryPath } from "../lib/typedefs.ts"
 // import { injectDiskspaceButton, injectDownloadButton, injectSizeButton } from "../lib/modify_ui.ts"
+// { dom_setTimeout, storage } = await import("../lib/deps.ts")
 
 declare global {
 	const navigation: Navigation
