@@ -1,6 +1,6 @@
 {
 	"name": "github_aid_ts",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "an extension to display the size of github repositories and files.",
 	"author": "Omar Azmi",
 	"license": "Lulz plz don't steal yet",

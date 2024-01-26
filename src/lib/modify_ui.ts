@@ -62,6 +62,10 @@ export const injectDownloadButton = (row_number?: number, column_span?: number) 
 		feature_name: keyof typeof config["features"] = "download",
 		button_dom = injectButtonInTableRow(config.features[feature_name].buttonText, feature_name, row_number, column_span)
 	// button_dom.onclick = TODO
+	button_dom.onclick = () => {
+		button_dom.innerText = "coming soon\u{2122}"
+		modifyElementStyleTemporarily(button_dom, 2000, "background-color: red;")
+	}
 }
 
 export const injectDiskspaceButton = (row_number?: number, column_span?: number) => {

@@ -11,7 +11,7 @@
 		html,
 		body {
 			max-width: 480px;
-			width: 24rem;
+			min-width: calc(min(24rem, 380px));
 		}
 
 		body {
@@ -23,9 +23,13 @@
 			border-radius: 5px;
 		}
 
-		@media screen and (max-width: 420px) {
+		@media screen and (max-width: 460px) {
+
+			html,
 			body {
-				width: calc(100vw - 1rem);
+				width: 100vw;
+				max-width: calc(min(100vw, 420px));
+				min-width: 320px;
 			}
 		}
 
@@ -173,14 +177,14 @@
 		<hr>
 		open-source libraries embedded:
 		<ul>
-			<li><a href="https://github.com/sindresorhus/modern-normalize">modern-normalize v2.0.0</a> (MIT License)</li>
-			<li><a href="https://github.com/omar-azmi/kitchensink_ts">kitchensink_ts v0.7.3</a></li>
+			<li><a href="https://github.com/sindresorhus/modern-normalize" target="_blank" rel="noopener">modern-normalize v2.0.0</a> (MIT License)</li>
+			<li><a href="https://github.com/omar-azmi/kitchensink_ts" target="_blank" rel="noopener">kitchensink_ts v0.7.3</a></li>
 		</ul>
 		open-source tools used:
 		<ul>
-			<li><a href="https://github.com/evanw/esbuild">esbuild</a></li>
-			<li><a href="https://github.com/lucacasonato/esbuild_deno_loader">esbuild_deno_loader</a></li>
-			<li><a href="https://github.com/denoland/deno">Deno</a></li>
+			<li><a href="https://github.com/evanw/esbuild" target="_blank" rel="noopener">esbuild</a></li>
+			<li><a href="https://github.com/lucacasonato/esbuild_deno_loader" target="_blank" rel="noopener">esbuild_deno_loader</a></li>
+			<li><a href="https://github.com/denoland/deno" target="_blank" rel="noopener">Deno</a></li>
 		</ul>
 	</div>
 </body>

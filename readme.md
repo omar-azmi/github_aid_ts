@@ -4,6 +4,13 @@ This is a Chromium and Firefox extension for viewing github Repository sizes, an
 
 > TODO: The download feature has yet to be implemented
 
+### Obligatory screenshots
+
+<p float="left">
+  <img src="./public/screenshots/desktop.png" style="width: 75%;" />
+  <img src="./public/screenshots/mobile.png" style="width: 22.5%;" />
+  <img src="./public/screenshots/desktop_option_page.png" style="width: 98%;" />
+</p>
 
 ## Why?
 
@@ -46,6 +53,26 @@ all in all, that will lead to a highly coupled codebase, and it'll be incredibly
 
 ## The Deno build process
 
+### Building it yourself
+
+to build this yourself, make sure that you first have [`Deno`](https://deno.com/) installed. then, in your terminal (or cmd), run:
+```shell
+deno task build-all
+```
+and you should get an unpacked distribution of the extension in the [`/dist/github_aid_ts-v*`](./dist/github_aid_ts-v0.1.0/) directory.
+
+other available commands (tasks):
+| command | general description |
+|---------|---------------------|
+| `deno task clean`              | delete the [`/dist/`](./dist/) folder |
+| `deno task clean --js-only`    | delete only the javascript files under the [`/dist/`](./dist/) folder |
+| `deno task build-1`            | copy all non-typescript source files to the [`/dist/`](./dist/) folder |
+| `deno task build-2`            | bundle endpoint typescript files inside of [`/src/`](./src/),<br>and mirror the resulting javascript files to the [`/dist/`](./dist/) folder |
+| add an additional `--log-only` <br> flag to any of the commands above | execute the task without actually writing or deleting any files |
+| `deno task build-all-log-only` | runs `deno task build-1 --log-only`<br>and then `deno task build-2 --log-only` |
+
+
+### Build diagram
 ```mermaid
 ---
 title: "Build process"
@@ -107,7 +134,7 @@ flowchart LR
 ```
 
 
-## General import map
+### General import map
 ```mermaid
 ---
 title: "Import graph"
@@ -137,7 +164,7 @@ flowchart TD
 
 ## Rationale for Code-Splitting, and its caveates
 
-### what is code-splitting, and how does it differ from regular bundling?
+### What is Code-Splitting, and how does it differ from regular bundling?
 suppose you have a total of 5 source code files (`A`, `B`, `C`, `D`, and `E`), with the following dependency graph:
 ```mermaid
 ---
@@ -178,7 +205,7 @@ this is where a potential problem can occur: if there was a runtime-unique share
 a few examples of runtime-unique shared pieces of code would be:
 - a javascript `Symbol`. both `bundleA` and `bundleB` will define the symbol separately, thereby becoming incompatible
 - mutative side-effects inside of `D`. if, for instance, `D.injectButton` was a function that would inject a button into your html and then set a `D.button_injected = true` flag inside so that duplicates of buttons are not made in future calls.
-If both `bundleA` and `bundleB` call `D.injectButton` several times, then we'd get two buttons instead of one, because now, the flags are defined independently.
+If both `bundleA` and `bundleB` call `D.injectButton` several times, then we'd get two buttons instead of one, because now, the flags are defined independently. <br>
 had we imported from `D` instead of bundling, we would've expected to see a single injected button.
 
 if we bundle with code-splitting enabled, we would get the following output dependency graph, and our runtime-unique shared pieces of code will interoperate correctly:
@@ -206,10 +233,10 @@ flowchart
 
 bundling with code-splitting also comes with the advantage of smaller total output file size.
 
-### caveates, specifically with browser-extensions development
+### Caveates of Code-Splitting specific to browser-extensions development
 
 first, you need to know that the extension is supposed to be a single javascript file that is executed after your designated injection-target website has loaded (this being "github.com" for this extension). <br>
-the javascript file to be ran is specified in the manifest file ([`/src/manifest.json`](/src/manifest.json)), under `manifest["content_scripts"][0]["js"][0]`. <br>
+the javascript file to be ran is specified in the manifest file ([`/src/manifest.json`](./src/manifest.json)), under `manifest["content_scripts"][0]["js"][0]`. <br>
 the global context available to this javascript of yours is simply the same as the one available to the target webpage (i.e. you are in the `window` environment), in addition to having a limitied number of browser-extension features, such as: `chrome.storage` and `chrome.runtime` (or in the case of firefox: `browser.storage` and `browser.runtime`). <br>
 moreover, by web-security design, you cannot do static imports in any content_script (so `import {x, y, z} from "./abc.js"` is disallowed). <br>
 however, you *can* dynamically import using `const {x, y, z} = await import("./abc.js")`, but it **will** require that the target webpage has access to that imported file, which it currently doesn't, because the file sits locally in your browser. <br>
@@ -232,10 +259,10 @@ here's how it should look: <br>
 	// ...
 }
 ```
-with that, you've solved the problem that you initiated, and made your extension less secure in doing so. <br>
-alternatively you can choose to bundle without code-splitting, and avoid all of this fuss. but where's the fun in that? <br>
+with that, you've solved the problem that you initiated, and made your extension less secure along the way. <br>
+alternatively you can choose to bundle without code-splitting, and avoid all the fuss. but where's the fun in that? <br>
 see this [stackexchange answer](https://stackoverflow.com/a/53033388), where I found this information from. <br>
-also see [`/src/js/content_script.ts`](/src/js/content_script.ts#L32-35) for the dynamic imports being done in this extension.
+also see [`/src/js/content_script.ts`](./src/js/content_script.ts#L32-L35) for the dynamic imports being done in this extension.
 
 
 ## License
