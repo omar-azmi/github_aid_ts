@@ -3,7 +3,7 @@ import { shuffledDeque } from "./deps.ts"
 const seppuku_slogans = /* @__PURE__ */[
 	"you are one step away from retaining your honor",
 	"your honor lies on the other side",
-	"sudoku must be commited before a large audience",
+	"sudoku must be committed before a large audience",
 	"know that kermit the frog is proud of you",
 	"sudoku fills you with determination",
 	"sudoku is now legal in canada! visit your local doctor find out more!",
@@ -30,7 +30,7 @@ const seppuku_slogans = /* @__PURE__ */[
 	"your organs will become a fine art",
 	"gunshot is a lazy sudoku",
 	"nippon has the best sudoku knives in the world",
-	"at the end of every journey, lies the begining of a new sudoku",
+	"at the end of every journey, lies the beginning of a new sudoku",
 	"sudoku is an honor, not a punishment",
 	"you are a hero, and sudoku is your reward",
 	"sudoku is now tax deductible! save money and your honor!",
@@ -51,7 +51,7 @@ const seppuku_slogans = /* @__PURE__ */[
 	"pray that you become a good piece of art as you fall into eternal slumber",
 	"bodily ketchup will gush out of your guts",
 	"did you enjoy your final obento onee-san prepared for you?",
-	"there is no esekai for commiters of sudoku. break free of the cycle!",
+	"there is no esekai for committers of sudoku. break free of the cycle!",
 	"sudoku lets you become one with the void",
 	`<pre style="margin: -2rem 0 0 0; text-align: center; font-size: 1rem; line-height: calc(1rem * (1.0 - exp(-1)));">┌───┬───┬───┐
 │S  │  K│ILL│

@@ -8,7 +8,7 @@ This is a Chromium and Firefox extension for viewing github Repository sizes, an
 
 <p float="left">
   <img src="./public/screenshots/desktop.png" style="width: 75%;" />
-  <img src="./public/screenshots/mobile.png" style="width: 22.5%;" />
+  <img src="./public/screenshots/mobile.png" style="width: 22%;" />
   <img src="./public/screenshots/desktop_option_page.png" style="width: 98%;" />
 </p>
 
@@ -177,7 +177,7 @@ flowchart TD
 	394730(("E")) --> 633740
 	842277 --> 222161
 	842277 --> 394730
-	subgraph 977297["bundling enpoints"]
+	subgraph 977297["bundling endpoints"]
 		633740
 		339264
 	end
@@ -237,10 +237,10 @@ bundling with code-splitting also comes with the advantage of smaller total outp
 
 first, you need to know that the extension is supposed to be a single javascript file that is executed after your designated injection-target website has loaded (this being "github.com" for this extension). <br>
 the javascript file to be ran is specified in the manifest file ([`/src/manifest.json`](./src/manifest.json)), under `manifest["content_scripts"][0]["js"][0]`. <br>
-the global context available to this javascript of yours is simply the same as the one available to the target webpage (i.e. you are in the `window` environment), in addition to having a limitied number of browser-extension features, such as: `chrome.storage` and `chrome.runtime` (or in the case of firefox: `browser.storage` and `browser.runtime`). <br>
+the global context available to this javascript of yours is simply the same as the one available to the target webpage (i.e. you are in the `window` environment), in addition to having a limited number of browser-extension features, such as: `chrome.storage` and `chrome.runtime` (or in the case of firefox: `browser.storage` and `browser.runtime`). <br>
 moreover, by web-security design, you cannot do static imports in any content_script (so `import {x, y, z} from "./abc.js"` is disallowed). <br>
 however, you *can* dynamically import using `const {x, y, z} = await import("./abc.js")`, but it **will** require that the target webpage has access to that imported file, which it currently doesn't, because the file sits locally in your browser. <br>
-hence, you will need to give the target webiste *access* to your imported javascript files, which is done by specifying the `manifest["web_accessible_resources"]` entry in the manifest file. <br>
+hence, you will need to give the target website *access* to your imported javascript files, which is done by specifying the `manifest["web_accessible_resources"]` entry in the manifest file. <br>
 here's how it should look: <br>
 ```ts
 // manifest.json
@@ -282,7 +282,7 @@ see [`license.md`](./license.md). but for a quick summary:
   - enable only the `public_repo` checkbox if you will NOT be viewing your private repository's stats
   - enable the whole `repo` group checkbox otherwise
 - Scroll to the bottom and click on the `Generate token` button
-- You will now be presented with the access token. MAKE SURE TO COPY AND SAVE IT NOW! This token will forever disapear after you close the dialog, so make sure to save it
+- You will now be presented with the access token. MAKE SURE TO COPY AND SAVE IT NOW! This token will forever disappear after you close the dialog, so make sure to save it
 - Paste the token into this browser extension
 
 For a visual guide, see one of:

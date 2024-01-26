@@ -66,14 +66,14 @@ export class GraphQLAPI extends GithubAPI {
 		const
 			{ owner, repo, branch } = this.repo,
 			branch_colon_path = branch + ":" + folder_pathname,
-			reqest_header: HeadersInit = {
+			request_header: HeadersInit = {
 				"content-type": "application/json",
 				"accept": "application/vnd.github+json",
 				"authorization": `bearer ${this.auth}`,
 			},
 			response = await (await fetch(config.api.graphql, {
 				method: "POST",
-				headers: reqest_header,
+				headers: request_header,
 				body: JSON.stringify({
 					query: create_recursive_query(options.recursion),
 					variables: { owner, repo, branch_colon_path }
@@ -81,7 +81,7 @@ export class GraphQLAPI extends GithubAPI {
 			})).json() as GraphQLResponse<GraphQLRepositoryData>
 		if (response.errors) {
 			const error_messages = response.errors.map((error) => (error.message)).join("\n\t")
-			throw Error(`encoutered GraphQL query errors:\n\t${error_messages}`)
+			throw Error(`encountered GraphQL query errors:\n\t${error_messages}`)
 		}
 		const folder_contents = response.data.repository.object.entries
 		const sumup_entry_bytesizes = (file_or_folder_entry: GraphQLRepositoryFolderEntry | GraphQLRepositoryFileEntry): number => {
@@ -101,14 +101,14 @@ export class GraphQLAPI extends GithubAPI {
 	async getDiskspace(): Promise<number> {
 		const
 			{ owner, repo } = this.repo,
-			reqest_header: HeadersInit = {
+			request_header: HeadersInit = {
 				"content-type": "application/json",
 				"accept": "application/vnd.github+json",
 				"authorization": `bearer ${this.auth}`,
 			},
 			response = await (await fetch(config.api.graphql, {
 				method: "POST",
-				headers: reqest_header,
+				headers: request_header,
 				body: JSON.stringify({
 					query: create_diskspace_query(),
 					variables: { owner, repo }
@@ -116,7 +116,7 @@ export class GraphQLAPI extends GithubAPI {
 			})).json() as GraphQLResponse<GraphQLRepositoryDiskspaceData>
 		if (response.errors) {
 			const error_messages = response.errors.map((error) => (error.message)).join("\n\t")
-			throw Error(`encoutered GraphQL query errors:\n\t${error_messages}`)
+			throw Error(`encountered GraphQL query errors:\n\t${error_messages}`)
 		}
 		return response.data.repository.diskUsage * 1024 // `diskUsage` is actually in kilobytes instead of bytes, so we need to convert it to bytes
 	}

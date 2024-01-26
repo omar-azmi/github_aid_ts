@@ -214,7 +214,7 @@ class BrowserStorage<SCHEMA extends Record<string, ({} | undefined)>> extends So
 		// here, we simply check if `this.storage.get(key)[key] === undefined`,
 		// because, if that key had ever been set to `undefined` via our `set` method, then it would've internally converted it to `null`,
 		// and we would've actually gotten `this.storage.get(key)[key] === null` instead.
-		// but actually, it seems far more reasonable to simply check of the `key` exists in the returned storge value object via `key in (await this.storage.get(key as any))`
+		// but actually, it seems far more reasonable to simply check of the `key` exists in the returned storage value object via `key in (await this.storage.get(key as any))`
 		// but i don't want to do that right now, unless i encounter an issue with my current way.
 		return (await this.storage.get(key as any))[key] === undefined
 	}

@@ -91,7 +91,7 @@ class DirectoryEntry {
 		const
 			displayed_name = (this.dom.querySelector("div:first-child") as HTMLElement).innerText,
 			// folders with exactly one subfolder are displayed as "folder/subfolder" (for example ".github/workflows" is quite common).
-			// in that case, we need to get the actual name of the entry, which preceeds the slash ("/").
+			// in that case, we need to get the actual name of the entry, which precedes the slash ("/").
 			// in summary, "folder/subfolder" will get parsed as "folder", and ".github/workflows" will be parsed as ".github", as it should be
 			actual_name = displayed_name.split("/", 1)[0]
 		return actual_name
@@ -129,7 +129,7 @@ export const previewSizes = async (event: MouseEvent) => {
 	try {
 		folder_size_info = await api_caller.getFolderSizeInfo(folder_pathname, { recursion: recursion_depth })
 	} catch (error) {
-		// turn the "size" button red in order to indicate a faliure while fetching
+		// turn the "size" button red in order to indicate a failure while fetching
 		modifyElementStyleTemporarily(event.target as HTMLButtonElement, 500, "background-color: red;")
 		console.log(error)
 	}
@@ -157,7 +157,7 @@ export const previewDiskspace = async (text_element: HTMLElement) => {
 	try {
 		total_bytesize = await api_caller.getDiskspace()
 	} catch (error) {
-		// turn the "download" button red in order to indicate a faliure while fetching
+		// turn the "download" button red in order to indicate a failure while fetching
 		modifyElementStyleTemporarily(text_element, 500, "background-color: red;")
 		console.log(error)
 	}

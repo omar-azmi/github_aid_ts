@@ -5,7 +5,7 @@
  * so, for that, we have to create an async iife to execute the script.
  * furthermore, the imported script MUST have external-resource security clearance to be imported here.
  * for that, we have to specify in "manifest.json": `web_accessible_resources = [{resources: ["*.js"], matches: "<all_urls>"}]`.
- * which is basically saying: javacript within "<all_urls>" in this extension can load the resource url_pattern "*.js" (all javascript files).
+ * which is basically saying: javascript within "<all_urls>" in this extension can load the resource url_pattern "*.js" (all javascript files).
 */
 
 // dynamic imports of the following are done in `runMain()`:
