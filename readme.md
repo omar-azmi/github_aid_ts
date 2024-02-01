@@ -2,14 +2,27 @@
 
 This is a Chromium and Firefox extension for viewing github Repository sizes, and ~~Bulk downloading~~ selected files and subdirectories.
 
+> [!note]
 > TODO: The download feature has yet to be implemented
+
+> [!warning]
+> Currently does not work in Firefox due to its inability to dynamically import from `"web_accessible_resources"`.
+> this is a long time [mozilla bug (1536094)](https://bugzilla.mozilla.org/show_bug.cgi?id=1536094), and it seems like it won't be fixed due to security concerns.
+
+### Downloads
+
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=googlechrome&logoColor=green&label=CHROME%20WEB%20STORE&color=green)](https://chromewebstore.google.com/detail/github-aid/abfbcnoemiciiljhpngefacedfgebdcn)
+[![Firefox Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=firefox&logoColor=red&label=FIREFOX%20WEB%20STORE&color=red)](https://chromewebstore.google.com/detail/github-aid/abfbcnoemiciiljhpngefacedfgebdcn)
+
+[![Edge Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=microsoftedge&logoColor=blue&logoWidth=33&label=EDGE%20WEB%20STORE&color=blue)](https://microsoftedge.microsoft.com/addons/detail/github-aid/gmmbjkoglimgjbdembmnllcepiejlped)
+[![GitHub Release](https://img.shields.io/github/v/release/omar-azmi/github_aid_ts?display_name=tag&style=for-the-badge&logo=github&logoColor=white&logoWidth=37&label=GITHUB%20RELEASE&color=black)](https://github.com/omar-azmi/github_aid_ts/releases/latest)
 
 ### Obligatory screenshots
 
 <p float="left">
   <img src="./public/screenshots/desktop.png" style="width: 75%;" />
   <img src="./public/screenshots/mobile.png" style="width: 22%;" />
-  <img src="./public/screenshots/desktop_option_page.png" style="width: 98%;" />
+  <img src="./public/screenshots/desktop_option.png" style="width: 98%;" />
 </p>
 
 ## Why?
@@ -48,7 +61,7 @@ If you look at a typical extension development codebase, you'll encounter:
   - same directory relative import cannot be done, and has to be done relative to the project's root (where `package.json` lies)
   - having to adjust to framework specific import prefix characters
 
-all in all, that will lead to a highly coupled codebase, and it'll be incredibly difficult to extract just one part of it for testing, or reusability somewhere else.
+all in all, that will lead to a highly coupled codebase, and it'll be incredibly difficult to extract just one part of it for testing, or reusability elsewhere.
 
 
 ## The Deno build process
