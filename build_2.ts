@@ -40,10 +40,12 @@ const output_files = await doubleCompileFiles("", dst_dir,
 		entryPoints: ts_files,
 		outbase: src_dir,
 		bundle: true,
+		treeShaking: true,
+		minify: false,
 		splitting: true,
 		platform: "browser",
 	},
-	{ minify: true },
+	{ minify: false },
 )
 
 console.log("witing the following transpiled files:", output_files.map((out_file) => out_file.path))

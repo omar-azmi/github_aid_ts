@@ -12,16 +12,11 @@
 			]
 		}
 	],
-	"web_accessible_resources": [
-		{
-			"resources": [
-				"*.js"
-			],
-			"matches": [
-				"<all_urls>"
-			]
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "github_aid@temp.com"
 		}
-	],
+	},
 	"icons": {
 		"16": "./icon/eldercat_16.png",
 		"32": "./icon/eldercat_32.png",

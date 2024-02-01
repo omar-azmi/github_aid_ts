@@ -328,7 +328,9 @@ export interface StorageSchema {
 }
 
 /** this corresponds to the "src_extension" folder. this compiled javascript file is initially located in "src_extension/js/" */
-const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
+// const root_dir = getBrowser() ? new URL("./", getBrowser()!.runtime.getURL("./")) : new URL("../", import.meta.url)
+// firefox prematurely throws an error about `import.meta` being only available in js modules, without even first evaluating the truthy expression
+const root_dir = new URL("./", getBrowser()!.runtime.getURL("./"))
 export const config = {
 	dir: {
 		root: new URL("./", root_dir),

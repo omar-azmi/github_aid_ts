@@ -9,9 +9,9 @@
 */
 
 // dynamic imports of the following are done in `runMain()`:
-// import { getCurrentURL, parseRepoEntryPath } from "../lib/typedefs.ts"
+// import { parseRepoEntryPath, getCurrentURL } from "../lib/typedefs.ts"
 // import { injectDiskspaceButton, injectDownloadButton, injectSizeButton } from "../lib/modify_ui.ts"
-// { dom_setTimeout, storage } = await import("../lib/deps.ts")
+// import { dom_setTimeout, storage } from "../lib/deps.ts"
 
 declare global {
 	const navigation: Navigation
@@ -29,10 +29,14 @@ const reserved_fullpaths = new Set([
 ])
 
 const runMain = async () => {
+	// you will have to use the following importation technique in the compiled javascript file to correctly import in firefox.
+	// however, with these exact lines, we will not be able to compile this code with esbuild, as it won't understand the reference anymore.
+	// so, we'll have to figure out some other way of doing this, or come up with a single wrapper code that takes care of
+	// importation based on whether it's running in browser-extension environment or standalone.
 	const
-		{ parseRepoEntryPath, getCurrentURL } = await import("../lib/typedefs.ts"),
-		{ injectDiskspaceButton, injectDownloadButton, injectSizeButton } = await import("../lib/modify_ui.ts"),
-		{ dom_setTimeout, storage } = await import("../lib/deps.ts")
+		{ parseRepoEntryPath, getCurrentURL } = await import(browser.runtime.getURL("./lib/typedefs.ts")),
+		{ injectDiskspaceButton, injectDownloadButton, injectSizeButton } = await import(browser.runtime.getURL("./lib/modify_ui.ts")),
+		{ dom_setTimeout, storage } = await import(browser.runtime.getURL("./lib/deps.ts"))
 
 	const onPageReload = async () => {
 		const repo_path = parseRepoEntryPath(getCurrentURL())
@@ -64,7 +68,8 @@ const runMain = async () => {
 		}
 	}
 
-	navigation.addEventListener("navigatesuccess ", () => dom_setTimeout(onPageReload, 300))
+	// firefox currently does not support `Navigation API`
+	// navigation.addEventListener("navigatesuccess ", () => dom_setTimeout(onPageReload, 300))
 	await onPageReload()
 }
 
