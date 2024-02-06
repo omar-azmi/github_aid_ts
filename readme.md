@@ -9,7 +9,7 @@ This is a Chromium and Firefox extension for viewing github Repository file and 
 ### Downloads
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=googlechrome&logoColor=green&label=CHROME%20WEB%20STORE&color=green)](https://chromewebstore.google.com/detail/github-aid/abfbcnoemiciiljhpngefacedfgebdcn)
-[![Firefox Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=firefox&logoColor=red&label=FIREFOX%20WEB%20STORE&color=red)](https://chromewebstore.google.com/detail/github-aid/abfbcnoemiciiljhpngefacedfgebdcn)
+[![Firefox Web Store](https://img.shields.io/amo/v/github-aid?style=for-the-badge&logo=firefox&logoColor=red&label=FIREFOX%20WEB%20STORE&color=red)](https://addons.mozilla.org/firefox/addon/github-aid/)
 
 [![Edge Web Store](https://img.shields.io/chrome-web-store/v/abfbcnoemiciiljhpngefacedfgebdcn?style=for-the-badge&logo=microsoftedge&logoColor=blue&logoWidth=33&label=EDGE%20WEB%20STORE&color=blue)](https://microsoftedge.microsoft.com/addons/detail/github-aid/gmmbjkoglimgjbdembmnllcepiejlped)
 [![GitHub Release](https://img.shields.io/github/v/release/omar-azmi/github_aid_ts?display_name=tag&style=for-the-badge&logo=github&logoColor=white&logoWidth=37&label=GITHUB%20RELEASE&color=black)](https://github.com/omar-azmi/github_aid_ts/releases/latest)
