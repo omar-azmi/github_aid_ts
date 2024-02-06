@@ -8,7 +8,7 @@
 				"*://github.com/*"
 			],
 			"js": [
-				"./js/content_script.js"
+				"./js/content_script_extension_adapter.js"
 			]
 		}
 	],
@@ -18,10 +18,15 @@
 				"*.js"
 			],
 			"matches": [
-				"<all_urls>"
+				"*://github.com/*"
 			]
 		}
 	],
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "github_aid@temp.com"
+		}
+	},
 	"icons": {
 		"16": "./icon/eldercat_16.png",
 		"32": "./icon/eldercat_32.png",
