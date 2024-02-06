@@ -1,13 +1,10 @@
 # Github Aid
 
-This is a Chromium and Firefox extension for viewing github Repository sizes, and ~~Bulk downloading~~ selected files and subdirectories.
+This is a Chromium and Firefox extension for viewing github Repository file and folder sizes, in addition to ~~Bulk downloading them~~.
 
 > [!note]
 > TODO: The download feature has yet to be implemented
 
-> [!warning]
-> Currently does not work in Firefox due to its inability to dynamically import from `"web_accessible_resources"`.
-> this is a long time [mozilla bug (1536094)](https://bugzilla.mozilla.org/show_bug.cgi?id=1536094), and it seems like it won't be fixed due to security concerns.
 
 ### Downloads
 
@@ -38,6 +35,27 @@ This is a Chromium and Firefox extension for viewing github Repository sizes, an
 - neither looks good and usable at the same time in mobile display
 
 -  wanted to do a fun weekend project, try out some GraphQL apis, and be done with the annoyance of constant non-functioning extensions
+
+
+## Problems you may encounter:
+
+1) The buttons are not appearing.
+- Fixes:
+  - Refresh the page. Github is an SPA (single-page application), so there are times when the background script does get reloaded upon navigation from one page to another.
+  - Make sure that you did not disable all buttons in the option page's layout section. If you're having touble, consider clicking on the red "reset" button to clear any misconfigurations and return to factory settings.
+  - Make sure that storage permission has been granted to this extension, otherwise the script will fail to load the default configuration, and terminate fatally.
+
+2) One of the buttons flashes in red, and nothing happens.
+- This is because the request query sent to github's server has failed, possibly due to one of the following reasons:
+  - Github's server is overloaded, and it decided to reject your request (quite common).
+	In this case, try switching your api method in the options page, and reload your webpage and retry.
+  - You are viewing a private repo, and the access token that you have (or may lack) is not authorized for pulling up data of that private repository.
+  - Your Github Access Token key is invalid, or has expired.
+  - You (and your Token) have reached their per hour request limit, or that you've been sending too many requests too quickly.
+	The request data rate for github is: 50 requests per hour for non-authorized tokenless users, and 5000 per hour for authorized users.
+	Moreover, the REST api in this extension used 2 requests for fetching file and folder sizes.
+  - There might be a bug in the code, or github's api might have changed.
+  In that case, I'd appreciate if you could report the issue on github: https://github.com/omar-azmi/github_aid_ts/issues
 
 
 ## How the internals differ
@@ -154,9 +172,9 @@ title: "Import graph"
 ---
 flowchart TD
 	591514(("deps.ts")) --> 530727((("option.ts\n(endpoint)")))
-	423910(("typedefs.ts")) -->|"dynamic\nimport"| 709575((("content_script.ts\n(endpoint)")))
-	405595(("modify_ui.ts")) -->|"dynamic\nimport"| 709575
-	591514 -->|"dynamic\nimport"| 709575
+	423910(("typedefs.ts")) --> 709575((("content_script.ts\n(endpoint)")))
+	405595(("modify_ui.ts")) --> 709575
+	591514 --> 709575
 	subgraph 325333["/src/lib/"]
 		591514 --> 650261(("gh_rest_api.ts"))
 		423910 --> 650261
@@ -168,7 +186,7 @@ flowchart TD
 		423910 --> 405595
 	end
 	subgraph 201358["/src/js/"]
-		709575
+		709575 -->|"dynamic import as\nchromeURL('/js/content_script.js')"| 798822((("content_script\n_extension_adapter.ts\n(endpoint)")))
 	end
 	subgraph 843058["/src/html/"]
 		530727 -->|"imported as\n'./option.js'"| 635635[["option.html"]]
@@ -261,12 +279,8 @@ here's how it should look: <br>
 	// ...
 	"web_accessible_resources": [
 		{
-			"resources": [
-				"*.js"
-			],
-			"matches": [
-				"<all_urls>"
-			]
+			"resources": ["*.js"],
+			"matches": ["<all_urls>"]
 		}
 	],
 	// ...
@@ -275,7 +289,7 @@ here's how it should look: <br>
 with that, you've solved the problem that you initiated, and made your extension less secure along the way. <br>
 alternatively you can choose to bundle without code-splitting, and avoid all the fuss. but where's the fun in that? <br>
 see this [stackexchange answer](https://stackoverflow.com/a/53033388), where I found this information from. <br>
-also see [`/src/js/content_script.ts`](./src/js/content_script.ts#L32-L35) for the dynamic imports being done in this extension.
+also see [`/src/js/content_script_extension_adapter.ts`](./src/js/content_script_extension_adapter.ts#L28) for the dynamic imports being done in this extension.
 
 
 ## License
@@ -289,14 +303,14 @@ see [`license.md`](./license.md). but for a quick summary:
 ## How to get a Github Access Token
 
 - First of all, you'll need to be logged into your github account (Duh!).
-- Navigate to here: [Generate new token (classic)](https://github.com/settings/tokens/new) (https://github.com/settings/tokens/new)
-- Set an `Expiration` date, (you'll probably want to choose `No expiration`)
+- Navigate to this github page: [Generate new token (classic)](https://github.com/settings/tokens/new) (https://github.com/settings/tokens/new).
+- Set an `Expiration` date for your token, (you'll probably want to choose `No expiration`).
 - In the `Select scopes` section, under the `repo` checkbox:
-  - enable only the `public_repo` checkbox if you will NOT be viewing your private repository's stats
-  - enable the whole `repo` group checkbox otherwise
-- Scroll to the bottom and click on the `Generate token` button
-- You will now be presented with the access token. MAKE SURE TO COPY AND SAVE IT NOW! This token will forever disappear after you close the dialog, so make sure to save it
-- Paste the token into this browser extension
+  - enable only the `public_repo` checkbox if you will NOT be viewing your private repository's stats.
+  - enable the whole `repo` group checkbox otherwise.
+- Scroll to the bottom and click on the `Generate token` button.
+- You will now be presented with the access token. MAKE SURE TO COPY AND SAVE IT SECURELY RIGHT NOW! This is a one time preview of you key, and it will disappear forever after you've closed the dialog.
+- Paste the token into this browser extension's options page.
 
 For a visual guide, see one of:
 - https://www.geeksforgeeks.org/how-to-generate-personal-access-token-in-github/

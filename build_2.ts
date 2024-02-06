@@ -46,7 +46,7 @@ const output_files = await doubleCompileFiles("", dst_dir,
 	{ minify: true },
 )
 
-console.log("witing the following transpiled files:", output_files.map((out_file) => out_file.path))
+console.log("writing the following transpiled files:", output_files.map((out_file) => out_file.path))
 if (!log_only) {
 	await Promise.all(output_files.map(
 		async ({ text, path }, file_number) => {

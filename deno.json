@@ -1,9 +1,9 @@
 {
 	"name": "github_aid_ts",
-	"version": "0.1.1",
-	"description": "an extension to display the size of github repositories and files.",
+	"version": "0.1.2",
+	"description": "Displays github repository file and folder sizes. Supports GraphQL and REST api modes. Also mobile friendly.",
 	"author": "Omar Azmi",
-	"license": "Lulz plz don't steal yet",
+	"license": "Anti-Competition License",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/omar-azmi/github_aid_ts.git"

@@ -15,15 +15,15 @@ const
 	src_dir = "./src/",
 	dst_dir = `./dist/${deno_json.name ?? ""}-v${deno_json.version ?? "0.0.0"}/`,
 	// additionl files to copy over to the `dst_dir`
-	additional_files: Array<[source_path: string, destination_relative_path: string]> = [
+	additional_files: Array<[source_root_path: string, destination_relative_path: string]> = [
 		["./license.md", "./license.md"],
 	]
 
 const buildManifestJson = (base_manifest_obj: { [key: string]: any }) => {
 	const
-		{ version, repository, description } = deno_json,
+		{ author, version, repository, description } = deno_json,
 		homepage_url = (repository.url as string).replace(/^git\+/, "").replace(/\.git$/, "")
-	Object.assign(base_manifest_obj, { version, description, homepage_url })
+	Object.assign(base_manifest_obj, { author, version, description, homepage_url })
 	delete base_manifest_obj["$schema"]
 	return base_manifest_obj
 }

@@ -1,7 +1,8 @@
 {
 	"$schema": "https://json.schemastore.org/chrome-manifest",
 	"manifest_version": 3,
-	"name": "Github Aid",
+	"name": "Github Aid - displays repo file sizes",
+	"short_name": "Github Aid",
 	"content_scripts": [
 		{
 			"matches": [
