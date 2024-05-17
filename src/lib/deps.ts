@@ -1,12 +1,10 @@
 /// <reference types="npm:web-ext-types" />
 
-export { array_isArray, array_isEmpty, dom_setTimeout, object_entries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
-export { debounceAndShare, memorize } from "https://deno.land/x/kitchensink_ts@v0.7.3/lambda.ts"
-export { clamp, sum } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
-export const number_isFinite = Number.isFinite
-
-import { array_isEmpty, dom_setTimeout, object_entries, object_fromEntries } from "https://deno.land/x/kitchensink_ts@v0.7.3/builtin_aliases_deps.ts"
-import { max } from "https://deno.land/x/kitchensink_ts@v0.7.3/numericmethods.ts"
+export { shuffleArray, shuffledDeque } from "jsr:@oazmi/kitchensink@0.7.5/array2d"
+export { array_isArray, array_isEmpty, dom_setTimeout, number_isFinite, object_entries } from "jsr:@oazmi/kitchensink@0.7.5/builtin_aliases_deps"
+export { debounceAndShare, memorize } from "jsr:@oazmi/kitchensink@0.7.5/lambda"
+export { clamp, sum } from "jsr:@oazmi/kitchensink@0.7.5/numericmethods"
+import { dom_setTimeout, object_entries, object_fromEntries } from "jsr:@oazmi/kitchensink@0.7.5/builtin_aliases_deps"
 
 
 declare const chrome: typeof browser
@@ -19,10 +17,8 @@ export const getBrowser = () => {
 	return possible_browser?.runtime ? possible_browser : undefined
 }
 export const getLocalStorage = () => {
-	return window?.localStorage ?? undefined
+	return globalThis?.localStorage ?? undefined
 }
-
-const math_random = Math.random
 
 const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
 
@@ -57,44 +53,6 @@ export const humanReadableBytesize = (bytesize: number): string => {
 */
 export const removeLeadingSlash = (str: string): string => {
 	return str.replace(/^(\/|\.\/)*/, "")
-}
-
-/** shuffle an array via mutation. the ordering of elements will be randomized by the end. */
-export const shuffleArray = <T>(arr: Array<T>): Array<T> => {
-	const
-		len = arr.length,
-		rand_int = () => (math_random() * len) | 0,
-		swap = (i1: number, i2: number) => {
-			const temp = arr[i1]
-			arr[i1] = arr[i2]
-			arr[i2] = temp
-		}
-	for (let i = 0; i < len; i++) swap(i, rand_int())
-	return arr
-}
-
-/** a generator that yields random selected non-repeating elements out of an array.
- * once the all elements have been yielded, a cycle has been completed.
- * after a cycle is completed the iterator resets to a new cycle, yielding randomly selected elements once again.
- * the ordering of the randomly yielded elements will also differ from compared to the first time. <br>
- * moreover, you can call the iterator with an optional number argument that specifies if you wish to skip ahead a certain number of elements.
- * - `1`: go to next element (default behavior)
- * - `0`: receive the same element as before
- * - `-1`: go to previous next element
- * - `+ve number`: skip to next `number` of elements
- * - `-ve number`: go back `number` of elements
- * 
- * note that once a cycle is complete, going back won't restore the correct element from the previous cycle, because the info about the previous cycle gets lost.
-*/
-export const shuffledDeque = function* <T>(arr: Array<T>): Generator<T, void, number | undefined> {
-	let i = arr.length // this is only temporary. `i` immediately becomes `0` when the while loop begins
-	while (!array_isEmpty(arr)) {
-		if (i >= arr.length) {
-			i = 0
-			shuffleArray(arr)
-		}
-		i = max(i + ((yield arr[i]) ?? 1), 0)
-	}
 }
 
 export const modifyElementStyleTemporarily = (elem: HTMLElement, duration_ms: number, prepend_style = "", append_style = ""): number => {

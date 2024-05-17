@@ -31,7 +31,7 @@ export interface GetFolderSizeInfo_Options {
 }
 
 export const getCurrentURL = () => {
-	return new URL(window.location.href)
+	return new URL(globalThis.location.href)
 }
 
 export const parseRepoEntryPath = (url: URL): RepoEntryPath | undefined => {
